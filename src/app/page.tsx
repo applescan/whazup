@@ -8,16 +8,8 @@ import SwipeScreen from "@/components/SwipeScreen";
 import MatchesScreen from "@/components/MatchesScreen";
 import RecommendationsScreen from "@/components/RecommendationsScreen";
 import { Category, useCategories } from "@/hooks/useCategories";
-import { shuffleArray } from "@/utils/helpers";
+import { AppState, shuffleArray } from "@/utils/helpers";
 import { questions } from "@/data/Questions";
-
-export enum AppState {
-  Welcome = "welcome",
-  Loading = "loading",
-  SwipingCategories = "swiping-categories",
-  Matches = "matches",
-  Recommendations = "recommendations",
-}
 
 export default function Home() {
   const [currentState, setCurrentState] = useState<AppState>(AppState.Welcome);
@@ -91,7 +83,7 @@ export default function Home() {
 
   switch (currentState) {
     case AppState.Welcome:
-      return <WelcomeScreen onContinue={handleLocationSelect} />;
+      return <WelcomeScreen onContinue={ handleLocationSelect } />;
 
     case AppState.Loading:
       return <LoadingScreen />;
@@ -99,34 +91,34 @@ export default function Home() {
     case AppState.SwipingCategories:
       return (
         <SwipeScreen
-          questions={questionList}
-          onLike={handleCategoryLiked}
-          onBack={() => setCurrentState(AppState.Welcome)}
-          onMatchesFound={handleMatchesFound}
-          apiError={error}
+          questions={ questionList }
+          onLike={ handleCategoryLiked }
+          onBack={ () => setCurrentState(AppState.Welcome) }
+          onMatchesFound={ handleMatchesFound }
+          apiError={ error }
         />
       );
 
     case AppState.Matches:
       return (
         <MatchesScreen
-          onCheckRecommendations={handleCheckRecommendations}
-          onKeepSwiping={handleKeepSwiping}
+          onCheckRecommendations={ handleCheckRecommendations }
+          onKeepSwiping={ handleKeepSwiping }
         />
       );
 
     case AppState.Recommendations:
       return (
         <RecommendationsScreen
-          events={recommendedEvents}
-          loading={eventsLoading}
-          error={error}
-          onBack={handleBackToSwiping}
-          onReturnHome={handleReturnHome}
+          events={ recommendedEvents }
+          loading={ eventsLoading }
+          error={ error }
+          onBack={ handleBackToSwiping }
+          onReturnHome={ handleReturnHome }
         />
       );
 
     default:
-      return <WelcomeScreen onContinue={handleLocationSelect} />;
+      return <WelcomeScreen onContinue={ handleLocationSelect } />;
   }
 }
