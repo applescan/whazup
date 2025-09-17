@@ -87,8 +87,8 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
     return (
       <ErrorScreen
         error="We couldn't load locations right now. Please try again."
-        onRetry={refetch}
-        onBack={() => (window.location.href = "/")}
+        onRetry={ refetch }
+        onBack={ () => (window.location.href = "/") }
       />
     );
   }
@@ -103,8 +103,8 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
 
       <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
 
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6 py-16 text-white">
-        <div className={`text-center mb-12 transition-all duration-1000 ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6 pt-16 pb-28 text-white">
+        <div className={ `text-center mb-12 transition-all duration-1000 ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}` }>
           <div className="relative inline-block">
             <div className="absolute inset-0 bg-white/10 rounded-full blur-xl animate-pulse"></div>
             <img
@@ -121,7 +121,7 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
           </div>
         </div>
 
-        <div className={`w-full max-w-md transition-all duration-1000 delay-300 ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
+        <div className={ `w-full max-w-md transition-all duration-1000 delay-300 ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}` }>
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20">
             <div className="mb-8">
               <div className="flex items-center gap-2 mb-4">
@@ -137,7 +137,7 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
 
             <div className="relative mb-8">
               <button
-                onClick={() => setShowDropdown(!showDropdown)}
+                onClick={ () => setShowDropdown(!showDropdown) }
                 className="w-full bg-white/90 backdrop-blur-sm text-gray-800 px-6 py-4 rounded-xl flex items-center justify-between shadow-lg hover:bg-white transition-all duration-300 hover:shadow-xl group"
               >
                 <div className="flex items-center gap-3">
@@ -146,69 +146,68 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
                   </div>
                   <div className="text-left">
                     <div className="font-semibold text-gray-800">
-                      {selectedLocation?.name || "Select location"}
+                      { selectedLocation?.name || "Select location" }
                     </div>
-                    {selectedLocation && (
+                    { selectedLocation && (
                       <div className="text-xs text-gray-500">
-                        {selectedLocation.count} events available
+                        { selectedLocation.count } events available
                       </div>
-                    )}
+                    ) }
                   </div>
                 </div>
                 <ChevronDown
-                  className={`w-5 h-5 text-gray-500 transition-all duration-300 group-hover:text-gray-700 ${
-                    showDropdown ? "rotate-180" : ""
-                  }`}
+                  className={ `w-5 h-5 text-gray-500 transition-all duration-300 group-hover:text-gray-700 ${showDropdown ? "rotate-180" : ""
+                    }` }
                 />
               </button>
 
-              {showDropdown && (
+              { showDropdown && (
                 <div className="absolute top-full left-0 right-0 mt-3 bg-white/95 backdrop-blur-lg rounded-xl shadow-2xl border border-white/20 z-20 max-h-48 overflow-hidden">
                   <div className="overflow-y-auto max-h-48 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-                    {loading && (
+                    { loading && (
                       <div className="px-6 py-4 text-gray-500 font-medium flex items-center gap-2">
                         <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-purple-500"></div>
                         Loading locations...
                       </div>
-                    )}
-                    {!loading &&
+                    ) }
+                    { !loading &&
                       Object.entries(grouped).map(([region, locs]) => (
-                        <div key={region}>
+                        <div key={ region }>
                           <div className="px-6 py-3 text-xs font-bold text-gray-600 bg-gradient-to-r from-gray-50 to-purple-50 border-b border-gray-100">
-                            {region}
+                            { region }
                           </div>
-                          {locs.map((location) => (
+                          { locs.map((location) => (
                             <button
-                              key={location.slug}
-                              onClick={() => {
+                              key={ location.slug }
+                              onClick={ () => {
                                 setSelectedLocation(location);
                                 setShowDropdown(false);
-                              }}
+                              } }
                               className="w-full px-6 py-4 text-left hover:bg-gradient-to-r hover:from-purple-50 hover:to-cyan-50 text-gray-800 transition-all duration-200 border-b border-gray-50 last:border-b-0 group"
                             >
                               <div className="flex items-center justify-between">
                                 <div>
                                   <div className="font-medium group-hover:text-purple-700">
-                                    {location.name}
+                                    { location.name }
                                   </div>
                                   <div className="text-xs text-gray-500 mt-1">
-                                    {location.count} events
+                                    { location.count } events
                                   </div>
                                 </div>
                                 <ArrowRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-200" />
                               </div>
                             </button>
-                          ))}
+                          )) }
                         </div>
-                      ))}
+                      )) }
                   </div>
                 </div>
-              )}
+              ) }
             </div>
 
             <button
-              onClick={handleContinue}
-              disabled={!selectedLocation}
+              onClick={ handleContinue }
+              disabled={ !selectedLocation }
               className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed group"
             >
               <div className="flex items-center justify-center gap-2">
