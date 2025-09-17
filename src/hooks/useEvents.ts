@@ -42,16 +42,15 @@ export function useEvents(location: string, categoryIds?: string) {
         const response = await fetch(`/api/events?${params.toString()}`);
         const result: ApiResponse = await response.json();
 
-        if (result.success && result.data.events.length > 0) {
-          const mappedEvents = mapEventfindaEventsToEvents(result.data.events);
+        if (result.success) {
+          const mappedEvents = mapEventfindaEventsToEvents(result.data.events || []);
           setEvents(mappedEvents);
+          if (mappedEvents.length === 0) {
+            setError(null);
+          }
         } else {
           setEvents([]);
-          setError(
-            `No events found in ${location}${
-              categoryIds ? ` for selected categories.` : "."
-            }`
-          );
+          setError(result.error || "Unable to load events.");
         }
       } catch (err) {
         console.error("Failed to fetch events:", err);

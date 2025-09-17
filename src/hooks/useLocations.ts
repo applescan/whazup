@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export interface Location {
   summary: string;
@@ -27,53 +27,40 @@ export function useLocations() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let isCancelled = false;
+  const fetchAllLocations = useCallback(async () => {
+    setLoading(true);
+    setError(null);
 
-    async function fetchAllLocations() {
-      setLoading(true);
-      setError(null);
+    const allLocations: Location[] = [];
+    let page = 1;
+    const pageSize = 100;
 
-      const allLocations: Location[] = [];
-      let page = 1;
-      const pageSize = 100;
+    try {
+      while (true) {
+        const res = await fetch(`/api/locations?rows=${pageSize}&page=${page}`);
+        const data: LocationsResponse = await res.json();
 
-      try {
-        while (true) {
-          const res = await fetch(
-            `/api/locations?rows=${pageSize}&page=${page}`
-          );
-          const data: LocationsResponse = await res.json();
-
-          if (!res.ok) {
-            throw new Error(`Failed to fetch locations: ${res.statusText}`);
-          }
-          if (isCancelled) return;
-
-          allLocations.push(...data.locations);
-
-          if (page >= data.page_count) break;
-          page++;
+        if (!res.ok) {
+          throw new Error(`Failed to fetch locations: ${res.statusText}`);
         }
 
-        if (!isCancelled) {
-          setLocations(allLocations);
-          setLoading(false);
-        }
-      } catch (err: any) {
-        if (!isCancelled) {
-          setError(err.message);
-          setLoading(false);
-        }
+        allLocations.push(...data.locations);
+
+        if (page >= data.page_count) break;
+        page++;
       }
+
+      setLocations(allLocations);
+      setLoading(false);
+    } catch (err: any) {
+      setError(err.message);
+      setLoading(false);
     }
-
-    fetchAllLocations();
-
-    return () => {
-      isCancelled = true;
-    };
   }, []);
 
-  return { locations, loading, error };
+  useEffect(() => {
+    fetchAllLocations();
+  }, [fetchAllLocations]);
+
+  return { locations, loading, error, refetch: fetchAllLocations };
 }

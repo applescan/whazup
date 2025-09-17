@@ -21,7 +21,6 @@ async function makeEventfindaRequest(
     "base64"
   );
 
-  console.log("Requesting:", url.toString());
 
   const response = await fetch(url.toString(), {
     method: "GET",

@@ -36,18 +36,45 @@ export function mapEventfindaEventToEvent(
     }
   };
 
+  const DEFAULT_IMAGE =
+    "https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=800";
+
+  const pickLargest = (
+    transforms: { url: string; width: number }[] = []
+  ): string | null => {
+    if (!Array.isArray(transforms) || transforms.length === 0) return null;
+    const best = transforms.reduce(
+      (largest, current) =>
+        current.width > (largest?.width || 0) ? current : largest,
+      null as null | { url: string; width: number }
+    );
+    return best?.url || null;
+  };
+
   const getEventImage = (images: EventfindaEvent["images"]): string => {
-    const transforms = images?.transforms;
-    if (transforms?.large_rectangle?.url) {
-      return transforms.large_rectangle.url;
+    if (!images) return DEFAULT_IMAGE;
+
+    if (Array.isArray((images as any).images)) {
+      const imgArr = (images as any).images;
+      if (imgArr.length === 0) return DEFAULT_IMAGE;
+
+      const primary = imgArr.find((img: any) => img.is_primary) || imgArr[0];
+
+      const transformUrl = pickLargest(primary.transforms?.transforms);
+      return transformUrl || primary.original_url || DEFAULT_IMAGE;
     }
-    if (transforms?.medium_rectangle?.url) {
-      return transforms.medium_rectangle.url;
+
+    if (images.transforms) {
+      const transformsObj = (images as any).transforms;
+      const transformArr = Object.values(transformsObj).filter(
+        (t) => t && typeof t === "object" && "url" in t
+      ) as { url: string; width: number }[];
+
+      const transformUrl = pickLargest(transformArr);
+      return transformUrl || DEFAULT_IMAGE;
     }
-    if (transforms?.small_rectangle?.url) {
-      return transforms.small_rectangle.url;
-    }
-    return "https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=800";
+
+    return DEFAULT_IMAGE;
   };
 
   const cleanDescription = (description: string): string => {
@@ -75,7 +102,7 @@ export function mapEventfindaEventToEvent(
         return min === max ? `$${min}` : `$${min}-${max}`;
       }
     }
-    return "Price TBA";
+    return "";
   };
 
   return {
