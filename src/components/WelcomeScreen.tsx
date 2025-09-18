@@ -125,7 +125,7 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
             <img
               src="/attribution.png"
               alt="Powered by Eventfinda"
-              className="h-14 mb-1"
+              className="h-10 mb-1"
             />
           </a>
         </div>
