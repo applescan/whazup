@@ -141,7 +141,6 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
                       <MapPin className="w-4 h-4 text-purple-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{ selectedEvent.venue }</p>
                       { selectedEvent.location && (
                         <p className="text-sm text-gray-600">{ selectedEvent.location }</p>
                       ) }
@@ -265,9 +264,8 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-gray-600">
                         <MapPin className="w-4 h-4" />
-                        <span className="text-sm">{ event.venue }</span>
                         { event.location && (
-                          <span className="text-sm">• { event.location }</span>
+                          <span className="text-sm">{ event.location }</span>
                         ) }
                       </div>
 

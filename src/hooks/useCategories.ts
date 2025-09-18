@@ -19,28 +19,53 @@ export function useCategories() {
     async function loadCategories() {
       try {
         const res = await fetch("/api/categories");
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+
         const data = await res.json();
+
+        if (!data.success || !data.categories) {
+          throw new Error("Invalid categories response");
+        }
+
         const cats: Category[] = data.categories;
 
         const withImages = await Promise.all(
           cats.map(async (cat) => {
-            const eventRes = await fetch(
-              `/api/events?category=${cat.id}&limit=1`
-            );
-            const eventData = await eventRes.json();
-            const imageUrl =
-              eventData.success && eventData.data.events.length > 0
-                ? mapEventfindaEventToEvent(eventData.data.events[0]).image
-                : "/placeholder-category.jpg";
+            try {
+              const eventRes = await fetch(
+                `/api/events?category=${cat.id}&limit=1`
+              );
 
-            return { ...cat, imageUrl };
+              if (eventRes.ok) {
+                const eventData = await eventRes.json();
+
+                if (eventData.success && eventData.data?.events?.length > 0) {
+                  const mappedEvent = mapEventfindaEventToEvent(eventData.data.events[0]);
+                  return {
+                    ...cat,
+                    imageUrl: mappedEvent.image || "/placeholder-category.jpg"
+                  };
+                }
+              }
+            } catch (imageErr) {
+              console.warn(`Failed to fetch image for category ${cat.name}:`, imageErr);
+            }
+
+            // Fallback image for category
+            return {
+              ...cat,
+              imageUrl: "/placeholder-category.jpg"
+            };
           })
         );
 
         setCategories(withImages);
       } catch (err: any) {
-        console.error("Error fetching categories or event images:", err);
-        setError(err.message);
+        console.error("Error fetching categories:", err);
+        setError(err.message || "Failed to load categories");
       } finally {
         setLoading(false);
       }

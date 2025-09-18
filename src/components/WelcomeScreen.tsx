@@ -94,7 +94,7 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 pb-2">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 -left-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/3 -right-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -104,7 +104,7 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
       <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
 
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6 pt-16 pb-28 text-white">
-        <div className={ `text-center mb-12 transition-all duration-1000 ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}` }>
+        <div className={ `text-center mb-6 transition-all duration-1000 ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}` }>
           <div className="relative inline-block">
             <div className="absolute inset-0 bg-white/10 rounded-full blur-xl animate-pulse"></div>
             <img
@@ -113,12 +113,21 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
               className="h-32 mx-auto drop-shadow-2xl relative z-10 transition-transform duration-300 hover:scale-105"
             />
           </div>
+        </div>
 
-          <div className="mt-8">
-            <p className="text-lg text-white/80 max-w-md mx-auto leading-relaxed">
-              Find epic experiences and must-see events happening nearby.
-            </p>
-          </div>
+        <div className={ `w-full max-w-md transition-all duration-1000 delay-200 mb-6 ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}` }>
+          <a
+            href="https://www.eventfinda.co.nz/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center text-white/60 hover:text-white transition-colors text-xs"
+          >
+            <img
+              src="/attribution.png"
+              alt="Powered by Eventfinda"
+              className="h-14 mb-1"
+            />
+          </a>
         </div>
 
         <div className={ `w-full max-w-md transition-all duration-1000 delay-300 ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}` }>
@@ -131,7 +140,7 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
                 </h2>
               </div>
               <p className="text-white/70 text-sm">
-                Select your preferred location to explore local events
+                Find epic experiences and must-see events happening nearby.
               </p>
             </div>
 

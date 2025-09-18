@@ -54,27 +54,64 @@ export function mapEventfindaEventToEvent(
   const getEventImage = (images: EventfindaEvent["images"]): string => {
     if (!images) return DEFAULT_IMAGE;
 
-    if (Array.isArray((images as any).images)) {
-      const imgArr = (images as any).images;
-      if (imgArr.length === 0) return DEFAULT_IMAGE;
+    try {
+      if (Array.isArray((images as any).images)) {
+        const imgArr = (images as any).images;
+        if (imgArr.length === 0) return DEFAULT_IMAGE;
 
-      const primary = imgArr.find((img: any) => img.is_primary) || imgArr[0];
+        const primary = imgArr.find((img: any) => img.is_primary) || imgArr[0];
 
-      const transformUrl = pickLargest(primary.transforms?.transforms);
-      return transformUrl || primary.original_url || DEFAULT_IMAGE;
+        if (primary.transforms?.transforms) {
+          const transformUrl = pickLargest(primary.transforms.transforms);
+          if (transformUrl) return transformUrl;
+        }
+
+        if (primary.original_url) return primary.original_url;
+        return DEFAULT_IMAGE;
+      }
+
+      if (images.transforms) {
+        const transformsObj = (images as any).transforms;
+        const transformArr = Object.values(transformsObj).filter(
+          (t) => t && typeof t === "object" && "url" in t && "width" in t
+        ) as { url: string; width: number }[];
+
+        const transformUrl = pickLargest(transformArr);
+        if (transformUrl) return transformUrl;
+      }
+
+      if ((images as any).original_url) {
+        return (images as any).original_url;
+      }
+
+      return DEFAULT_IMAGE;
+    } catch (error) {
+      console.warn("Error processing event image:", error);
+      return DEFAULT_IMAGE;
     }
+  };
 
-    if (images.transforms) {
-      const transformsObj = (images as any).transforms;
-      const transformArr = Object.values(transformsObj).filter(
-        (t) => t && typeof t === "object" && "url" in t
-      ) as { url: string; width: number }[];
+  const decodeHtmlEntities = (text: string): string => {
+    const entityMap: { [key: string]: string } = {
+      '&amp;': '&',
+      '&lt;': '<',
+      '&gt;': '>',
+      '&quot;': '"',
+      '&#39;': "'",
+      '&apos;': "'",
+      '&rsquo;': "'",
+      '&lsquo;': "'",
+      '&ldquo;': '"',
+      '&rdquo;': '"',
+      '&ndash;': '–',
+      '&mdash;': '—',
+      '&nbsp;': ' ',
+      '&hellip;': '…',
+    };
 
-      const transformUrl = pickLargest(transformArr);
-      return transformUrl || DEFAULT_IMAGE;
-    }
-
-    return DEFAULT_IMAGE;
+    return text.replace(/&[a-z]+;|&#\d+;/gi, (match) => {
+      return entityMap[match.toLowerCase()] || match;
+    });
   };
 
   const cleanDescription = (description: string): string => {
@@ -82,11 +119,13 @@ export function mapEventfindaEventToEvent(
 
     const withoutHtml = description.replace(/<[^>]*>/g, "");
 
-    if (withoutHtml.length > 150) {
-      return withoutHtml.substring(0, 147) + "...";
+    const decoded = decodeHtmlEntities(withoutHtml);
+
+    if (decoded.length > 150) {
+      return decoded.substring(0, 147) + "...";
     }
 
-    return withoutHtml;
+    return decoded;
   };
 
   const formatPrice = (event: EventfindaEvent): string => {
@@ -110,15 +149,15 @@ export function mapEventfindaEventToEvent(
     title: eventfindaEvent.name,
     description: cleanDescription(eventfindaEvent.description),
     category: eventfindaEvent.category?.name || "Event",
-    venue: eventfindaEvent.venue?.name || "Venue TBA",
     location:
       eventfindaEvent.location_summary ||
       eventfindaEvent.address ||
       "Location TBA",
     datetime: formatDateTime(eventfindaEvent.datetime_start),
     image: getEventImage(eventfindaEvent.images),
-    fullDescription:
-      eventfindaEvent.description || "No detailed description available",
+    fullDescription: eventfindaEvent.description
+      ? decodeHtmlEntities(eventfindaEvent.description.replace(/<[^>]*>/g, ""))
+      : "No detailed description available",
     url: eventfindaEvent.url,
     price: formatPrice(eventfindaEvent),
     isFree: eventfindaEvent.is_free,
@@ -128,5 +167,10 @@ export function mapEventfindaEventToEvent(
 export function mapEventfindaEventsToEvents(
   eventfindaEvents: EventfindaEvent[]
 ): Event[] {
+  if (!Array.isArray(eventfindaEvents)) {
+    console.warn("mapEventfindaEventsToEvents received non-array:", eventfindaEvents);
+    return [];
+  }
+
   return eventfindaEvents.map(mapEventfindaEventToEvent);
 }

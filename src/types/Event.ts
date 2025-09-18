@@ -3,7 +3,6 @@ export interface Event {
   title: string;
   description: string;
   category: string;
-  venue: string;
   location: string;
   datetime: string;
   image: string;
@@ -28,12 +27,6 @@ export interface EventfindaEvent {
   datetime_end: string;
   location_summary: string;
   address: string;
-  venue: {
-    id: string;
-    name: string;
-    address: string;
-    location_summary: string;
-  };
   category: {
     id: string;
     name: string;

@@ -32,7 +32,7 @@ export function useEvents(location: string, categoryIds?: string) {
       try {
         const params = new URLSearchParams({
           location: location,
-          limit: "20",
+          limit: "50",
         });
 
         if (categoryIds) {
@@ -40,13 +40,19 @@ export function useEvents(location: string, categoryIds?: string) {
         }
 
         const response = await fetch(`/api/events?${params.toString()}`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
         const result: ApiResponse = await response.json();
 
-        if (result.success) {
-          const mappedEvents = mapEventfindaEventsToEvents(result.data.events || []);
+        if (result.success && result.data?.events) {
+          const mappedEvents = mapEventfindaEventsToEvents(result.data.events);
           setEvents(mappedEvents);
+
           if (mappedEvents.length === 0) {
-            setError(null);
+            setError("No events found for the selected categories in this location.");
           }
         } else {
           setEvents([]);
@@ -54,7 +60,7 @@ export function useEvents(location: string, categoryIds?: string) {
         }
       } catch (err) {
         console.error("Failed to fetch events:", err);
-        setError("Unable to load events.");
+        setError("Unable to connect to the event service. Please try again.");
         setEvents([]);
       } finally {
         setLoading(false);
