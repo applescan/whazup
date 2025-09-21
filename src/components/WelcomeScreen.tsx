@@ -103,7 +103,7 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
 
       <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
 
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6 pt-16 pb-28 text-white">
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-6 pt-16 pb-10 text-white">
         <div className={ `text-center mb-6 transition-all duration-1000 ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}` }>
           <div className="relative inline-block">
             <div className="absolute inset-0 bg-white/10 rounded-full blur-xl animate-pulse"></div>
@@ -130,7 +130,7 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
           </a>
         </div>
 
-        <div className={ `w-full max-w-md transition-all duration-1000 delay-300 ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}` }>
+        <div className={ `w-full max-w-md transition-all duration-1000 delay-300 pb-20 ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}` }>
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20">
             <div className="mb-8">
               <div className="flex items-center gap-2 mb-4">
@@ -224,6 +224,21 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
               </div>
             </button>
+          </div>
+        </div>
+
+        <div className={ `mt-10 pb-5 pt-5 border-t border-white/20 transition-all duration-1000 delay-500 ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}` }>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+            <p className="flex flex-wrap items-center gap-4 text-sm text-white/70 font-semibold">
+              © 2025 Felicia Fel. All rights reserved. 😶‍🌫️🥚
+            </p>
+            <ul className="flex flex-wrap items-center gap-4 text-xs">
+              <li className="text-white/60 hover:text-white duration-300">
+                <a href="https://felicia-portfolio.netlify.app/" target="_blank" rel="noopener noreferrer">
+                  Portfolio
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
