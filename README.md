@@ -57,8 +57,8 @@ A modern, Tinder-style event discovery application that helps users find persona
 
 1. **Clone the repository**
    ```bash
-   git clone [repository-url]
-   cd event-discovery-app
+   git clone https://github.com/applescan/whazup
+   cd whazup
    ```
 
 2. **Install dependencies**
