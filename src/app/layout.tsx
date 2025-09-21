@@ -55,26 +55,6 @@ export const metadata: Metadata = {
       { url: '/favicon.png' },
     ],
   },
-
-  manifest: '/site.webmanifest',
-
-  applicationName: 'WHAZUP NZ',
-  referrer: 'origin-when-cross-origin',
-  category: 'entertainment',
-  classification: 'Events & Entertainment',
-
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-
 }
 
 export default function RootLayout({
