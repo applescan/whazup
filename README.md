@@ -2,6 +2,10 @@
 
 A modern, Tinder-style event discovery application that helps users find personalized events in New Zealand using the Eventfinda API. Users swipe through curated questions to discover their event preferences and receive tailored recommendations.
 
+## Screenshots
+![](https://github.com/applescan/whazup/blob/main/public/whazup.png)
+![](https://github.com/applescan/whazup/blob/main/public/whazup-2.png)
+
 ## Features
 
 ### 🎯 **Smart Event Discovery**
