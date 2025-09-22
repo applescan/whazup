@@ -40,8 +40,6 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
         </div>
 
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
-
         <div className="relative z-10 flex items-center justify-center min-h-full">
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20">
             <div className="flex items-center gap-3">
@@ -59,13 +57,11 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-16">
-        {/* Animated background elements */ }
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 -left-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-1/3 -right-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
 
         <div className="relative z-10 flex flex-col items-center justify-center min-h-full p-6 text-center">
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20 max-w-md">
@@ -94,8 +90,6 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
           <div className="absolute bottom-1/3 -right-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
         </div>
-
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
 
         <div className="relative z-10 p-6 sm:p-6">
           <div className="max-w-2xl mx-auto">
@@ -201,8 +195,6 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
         <div className="absolute bottom-1/3 -right-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
-
-      <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
 
       <div className="relative z-10 p-6 sm:p-6">
         <div className="max-w-2xl mx-auto">
