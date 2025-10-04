@@ -1,25 +1,18 @@
 import { useState, useEffect, useCallback } from "react";
 
 export interface Location {
-  summary: string;
-  count_current_events: number;
-  url_slug: string;
-  is_venue: boolean;
   id: number;
   name: string;
-  slug: string;
-  country: string;
-  region?: string;
-  parent_id?: number;
-  type?: string;
+  summary: string;
+  url_slug: string;
+  is_venue: boolean;
+  count_current_events: number;
+  children?: Location[];
 }
 
 interface LocationsResponse {
   locations: Location[];
   count: number;
-  page_count: number;
-  page_size: number;
-  page_number: number;
 }
 
 export function useLocations() {
@@ -27,40 +20,52 @@ export function useLocations() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAllLocations = useCallback(async () => {
+  const fetchLocations = useCallback(async () => {
     setLoading(true);
     setError(null);
 
-    const allLocations: Location[] = [];
-    let page = 1;
-    const pageSize = 100;
-
     try {
-      while (true) {
-        const res = await fetch(`/api/locations?rows=${pageSize}&page=${page}`);
-        const data: LocationsResponse = await res.json();
+      const res = await fetch(`/api/locations?rows=1&levels=2`);
+      const data: LocationsResponse & { error?: string } = await res.json();
 
-        if (!res.ok) {
-          throw new Error(`Failed to fetch locations: ${res.statusText}`);
+      if (data.error) throw new Error(data.error);
+
+      const normalizeChildren = (loc: any): Location => ({
+        ...loc,
+        children: Array.isArray(loc.children)
+          ? loc.children
+          : Array.isArray(loc.children?.children)
+            ? loc.children.children
+            : [],
+      });
+
+      const flattenLocations = (locs: any[]): Location[] => {
+        const result: Location[] = [];
+        for (const loc of locs) {
+          const normalized = normalizeChildren(loc);
+          result.push(normalized);
+          if (normalized.children?.length) {
+            result.push(...flattenLocations(normalized.children));
+          }
         }
+        return result;
+      };
 
-        allLocations.push(...data.locations);
+      const flatList = flattenLocations(data.locations || []);
 
-        if (page >= data.page_count) break;
-        page++;
-      }
+      const cleaned = flatList.filter((loc) => !loc.is_venue);
 
-      setLocations(allLocations);
-      setLoading(false);
+      setLocations(cleaned);
     } catch (err: any) {
       setError(err.message);
+    } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchAllLocations();
-  }, [fetchAllLocations]);
+    fetchLocations();
+  }, [fetchLocations]);
 
-  return { locations, loading, error, refetch: fetchAllLocations };
+  return { locations, loading, error, refetch: fetchLocations };
 }

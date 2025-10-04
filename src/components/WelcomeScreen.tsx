@@ -45,21 +45,25 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
     setTimeout(() => setIsAnimated(true), 100);
 
     if (!loading && locations.length > 0) {
-      const clean: GroupedLocation[] = locations
-        .filter((loc) => !loc.is_venue && loc.name && loc.url_slug)
-        .map((loc) => ({
-          name: loc.name,
-          slug: loc.url_slug,
-          count: loc.count_current_events || 0,
-          region: mapToRegion(loc.summary || ""),
-        }));
+      const root = locations.find((loc) =>
+        loc.name.toLowerCase().includes("new zealand")
+      );
+
+      const children = locations.filter(
+        (loc) => loc.name && !loc.is_venue && loc.id !== root?.id
+      );
+
+      const clean: GroupedLocation[] = children.map((loc) => ({
+        name: loc.name,
+        slug: loc.url_slug,
+        count: loc.count_current_events || 0,
+        region: mapToRegion(loc.summary || loc.name),
+      }));
 
       const groupedMap: Record<string, GroupedLocation[]> = {};
 
       for (const loc of clean) {
-        if (!groupedMap[loc.region]) {
-          groupedMap[loc.region] = [];
-        }
+        if (!groupedMap[loc.region]) groupedMap[loc.region] = [];
         groupedMap[loc.region].push(loc);
       }
 
@@ -69,11 +73,58 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
 
       setGrouped(groupedMap);
 
-      const all = clean;
-      const auckland = all.find((l) =>
-        l.name.toLowerCase().includes("auckland")
-      );
-      setSelectedLocation(auckland || all[0] || null);
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            const { latitude, longitude } = pos.coords;
+
+            try {
+              const res = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
+              );
+              const data = await res.json();
+
+              const regionName =
+                data.address?.region ||
+                data.address?.state ||
+                data.address?.city ||
+                "";
+
+              const matched = clean.find((l) =>
+                regionName
+                  ? regionName.toLowerCase().includes(l.name.toLowerCase()) ||
+                  l.name.toLowerCase().includes(regionName.toLowerCase())
+                  : false
+              );
+
+              if (matched) {
+                setSelectedLocation(matched);
+              } else {
+                const auckland = clean.find((l) =>
+                  l.name.toLowerCase().includes("auckland")
+                );
+                setSelectedLocation(auckland || clean[0] || null);
+              }
+            } catch (e) {
+              const auckland = clean.find((l) =>
+                l.name.toLowerCase().includes("auckland")
+              );
+              setSelectedLocation(auckland || clean[0] || null);
+            }
+          },
+          () => {
+            const auckland = clean.find((l) =>
+              l.name.toLowerCase().includes("auckland")
+            );
+            setSelectedLocation(auckland || clean[0] || null);
+          }
+        );
+      } else {
+        const auckland = clean.find((l) =>
+          l.name.toLowerCase().includes("auckland")
+        );
+        setSelectedLocation(auckland || clean[0] || null);
+      }
     }
   }, [locations, loading]);
 
