@@ -101,7 +101,6 @@ export function useCategories() {
           })
         );
 
-        console.log("Categories loaded successfully with images");
         setCategories(categoriesWithImages);
 
       } catch (err: any) {
