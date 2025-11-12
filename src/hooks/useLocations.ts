@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 
 export interface Location {
   id: number;
@@ -25,33 +25,44 @@ export function useLocations() {
     setError(null);
 
     try {
-      const res = await fetch(`/api/locations?rows=1&levels=2`);
+      const res = await fetch(`/api/locations?rows=100&levels=2`);
       const data: LocationsResponse & { error?: string } = await res.json();
 
       if (data.error) throw new Error(data.error);
 
-      const normalizeChildren = (loc: any): Location => ({
+      type RawLocation = Omit<Location, 'children'> & {
+        children?: Location[] | { children?: Location[] };
+      };
+
+      const normalizeChildren = (loc: RawLocation): Location => ({
         ...loc,
         children: Array.isArray(loc.children)
           ? loc.children
           : Array.isArray(loc.children?.children)
-            ? loc.children.children
-            : [],
+          ? loc.children.children
+          : [],
       });
 
-      const flattenLocations = (locs: any[]): Location[] => {
+      const flattenLocations = (loc: Location): Location[] => {
+        if (!loc) return [];
         const result: Location[] = [];
-        for (const loc of locs) {
-          const normalized = normalizeChildren(loc);
-          result.push(normalized);
-          if (normalized.children?.length) {
-            result.push(...flattenLocations(normalized.children));
+
+        const normalized = normalizeChildren(loc);
+
+        if (normalized.children?.length) {
+          for (const child of normalized.children) {
+            const childAndDescendants = flattenLocations(child);
+            result.push(...childAndDescendants);
           }
         }
+        if (!normalized.children?.length) {
+          result.push(normalized);
+        }
+
         return result;
       };
 
-      const flatList = flattenLocations(data.locations || []);
+      const flatList = flattenLocations(data.locations[1] || []);
 
       const cleaned = flatList.filter((loc) => !loc.is_venue);
 
