@@ -64,7 +64,16 @@ export function useLocations() {
 
       const flatList = flattenLocations(data.locations[1] || []);
 
-      const cleaned = flatList.filter((loc) => !loc.is_venue);
+      const filtered = flatList.filter(
+        (loc) => !loc.is_venue && (loc.count_current_events ?? 0) > 10
+      );
+
+      const seen = new Set<string>();
+      const cleaned = filtered.filter((loc) => {
+        if (seen.has(loc.name)) return false;
+        seen.add(loc.name);
+        return true;
+      });
 
       setLocations(cleaned);
     } catch (err: any) {
