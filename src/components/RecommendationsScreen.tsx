@@ -233,7 +233,7 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
                 whileTap={ { scale: 0.98 } }
               >
                 <div className="bg-white/95 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-white/20 transition-all duration-300 group-hover:shadow-2xl">
-                  <div className="relative h-48 sm:h-56">
+                  <div className="relative w-full lg:max-w-[1170px] aspect-[1170/504] object-cover">
                     <img
                       src={ event.image }
                       alt={ event.title }

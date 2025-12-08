@@ -161,7 +161,7 @@ const SwipeScreen: ComponentType<SwipeScreenProps> = ({
                           "/placeholder-category.jpg"
                         }
                         alt={ currentQuestion.category.name }
-                        className="w-full h-48 sm:h-64 md:h-72 object-cover"
+                        className="w-full lg:max-w-[1170px] aspect-[1170/504] object-cover"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
 
