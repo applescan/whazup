@@ -129,16 +129,6 @@ The app covers 8 major event categories:
 - Minimal bundle size with tree shaking
 - Progressive enhancement for mobile
 
-### **Environment Variables for Production**
-Ensure these are set in your deployment environment:
-```env
-EVENTFINDA_USERNAME=your_production_username
-EVENTFINDA_PASSWORD=your_production_password
-```
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
