@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, ComponentType, useEffect, useRef } from "react";
-import { ArrowLeft, ExternalLink, Calendar, MapPin, DollarSign, Sparkles, Star } from "lucide-react";
+import { ArrowLeft, ExternalLink, Calendar, MapPin, DollarSign, Sparkles, Star, Gauge, Flame, Compass } from "lucide-react";
 import { motion } from "framer-motion";
 import { Event } from "@/types/Event";
 
@@ -29,6 +29,28 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isAnimated, setIsAnimated] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const heroEvent = events[0];
+  const secondaryEvents = heroEvent ? events.slice(1) : events;
+  const freeExperiences = events.filter((event) => {
+    if (event.isFree) return true;
+    if (!event.price) return false;
+    return event.price.toLowerCase().includes("free");
+  }).length;
+  const uniqueCategories = Array.from(
+    new Set(events.map((event) => event.category).filter(Boolean))
+  ).length;
+  const curatedScore = Math.min(99, Math.max(72, 65 + events.length * 3));
+  const vibeLabel = curatedScore > 92 ? "Best Match" : curatedScore > 85 ? "Lively" : "Chill";
+  const highlightStats = [
+    { label: "Curated Picks", value: events.length || "-" },
+    { label: "Free Experiences", value: freeExperiences || 0 },
+    { label: "Unique Categories", value: uniqueCategories || 1 },
+  ];
+  const accentGradients = [
+    "from-purple-500/20 to-cyan-500/20",
+    "from-pink-500/20 to-orange-500/20",
+    "from-blue-500/20 to-emerald-500/20",
+  ];
 
   useEffect(() => {
     setTimeout(() => setIsAnimated(true), 100);
@@ -251,8 +273,115 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
             </div>
           </div>
 
+          { heroEvent && (
+            <motion.div
+              className="mb-10"
+              initial={ { opacity: 0, y: 20 } }
+              animate={ { opacity: 1, y: 0 } }
+              transition={ { duration: 0.5 } }
+            >
+              <div className="relative overflow-hidden rounded-3xl border border-white/20 bg-white/5 backdrop-blur-xl shadow-2xl">
+                <div className="absolute inset-0 opacity-60 bg-gradient-to-r from-purple-900/40 via-transparent to-cyan-900/40" />
+                <div className="relative z-10 flex flex-col gap-6 p-6 sm:p-8">
+                  <div className="relative rounded-2xl overflow-hidden border border-white/20 lg:max-w-[1170px] aspect-[1170/504]">
+                    <img
+                      src={ heroEvent.image }
+                      alt={ heroEvent.title }
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent lg:max-w-[1170px] aspect-[1170/504]" />
+                    <div className="absolute top-4 left-4 flex items-center gap-2">
+                      <span className="px-3 py-1 rounded-full bg-white/90 text-xs font-semibold text-gray-800 flex items-center gap-1">
+                        <Sparkles className="w-3 h-3 text-purple-500" />
+                        Top Pick
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-6">
+                    <div>
+                      <p className="text-sm uppercase tracking-wider text-white/70 mb-2 flex items-center gap-2">
+                        <Compass className="w-4 h-4 text-cyan-300" />
+                        Spotlight Experience
+                      </p>
+                      <h2 className="text-3xl font-bold text-white leading-tight mb-3">
+                        { heroEvent.title }
+                      </h2>
+                      <p className="text-white/80">
+                        Dive deeper into this { heroEvent.category?.toLowerCase() || "curated" } moment. We have matched it with your vibe for a { vibeLabel.toLowerCase() } night out.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/10 border border-white/10">
+                        <Gauge className="w-5 h-5 text-cyan-300" />
+                        <div>
+                          <p className="text-xs uppercase tracking-widest text-white/70">Match Score</p>
+                          <p className="text-white text-lg font-semibold">{ curatedScore } / 100 • { vibeLabel }</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/10 border border-white/10">
+                        <Flame className="w-5 h-5 text-orange-300" />
+                        <div>
+                          <p className="text-xs uppercase tracking-widest text-white/70">Energy</p>
+                          <p className="text-white text-lg font-semibold">{ heroEvent.location || "Vibrant venue" }</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-3">
+                      { heroEvent.category && (
+                        <span className="px-3 py-1 rounded-full bg-white/15 text-xs font-semibold text-white/80 border border-white/20">
+                          { heroEvent.category }
+                        </span>
+                      ) }
+                      { heroEvent.price && (
+                        <span className="px-3 py-1 rounded-full bg-white/15 text-xs font-semibold text-white/80 border border-white/20">
+                          { heroEvent.price }
+                        </span>
+                      ) }
+                      <span className="px-3 py-1 rounded-full bg-white/15 text-xs font-semibold text-white/80 border border-white/20">
+                        { heroEvent.datetime }
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <button
+                        onClick={ () => setSelectedEvent(heroEvent) }
+                        className="flex-1 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-semibold py-4 rounded-xl transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg"
+                      >
+                        Dive Into Details
+                      </button>
+                      <button
+                        onClick={ () => handleEventClick(heroEvent.url) }
+                        className="px-6 py-4 rounded-xl border border-white/30 text-white/80 hover:text-white hover:border-white/60 transition-all duration-300"
+                      >
+                        Get Tickets
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ) }
+
+          <div className="grid gap-4 sm:grid-cols-3 mb-10">
+            { highlightStats.map((stat) => (
+              <motion.div
+                key={ stat.label }
+                className="rounded-2xl border border-white/15 bg-white/5 backdrop-blur-lg p-4"
+                initial={ { opacity: 0, y: 10 } }
+                animate={ { opacity: 1, y: 0 } }
+                transition={ { duration: 0.4 } }
+              >
+                <p className="text-xs uppercase tracking-widest text-white/60 mb-1">{ stat.label }</p>
+                <p className="text-2xl font-semibold text-white">{ stat.value }</p>
+              </motion.div>
+            )) }
+          </div>
+
           <div className="space-y-6">
-            { events.map((event, index) => (
+            { secondaryEvents.map((event, index) => (
               <motion.button
                 key={ event.id }
                 onClick={ () => setSelectedEvent(event) }
@@ -272,9 +401,12 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
 
-                    <div className="absolute top-3 left-3">
+                    <div className="absolute top-3 left-3 flex items-center gap-2">
                       <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full flex items-center justify-center">
-                        <span className="text-white text-sm font-bold">{ index + 1 }</span>
+                        <span className="text-white text-sm font-bold">{ (heroEvent ? index + 2 : index + 1) }</span>
+                      </div>
+                      <div className="px-3 py-1 rounded-full bg-gradient-to-r from-pink-500/80 to-orange-500/80 text-white text-xs font-semibold">
+                        { event.category || "Curated" }
                       </div>
                     </div>
                   </div>
@@ -304,6 +436,14 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
                         </div>
                       ) }
                     </div>
+
+                    <div className="flex flex-wrap gap-2 mt-4">
+                      { event.isFree && (
+                        <span className="text-xs font-semibold px-3 py-1 rounded-full bg-green-100 text-green-700 border border-green-200">
+                          Free Entry
+                        </span>
+                      ) }
+                    </div>
                   </div>
                 </div>
               </motion.button>
@@ -316,7 +456,7 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
                     Loading more events...
                   </div>
                 ) : (
-                  <span className="text-white/70 text-sm">Scroll to load more events</span>
+                  <span className="text-white/70 text-sm">You have seen all the events</span>
                 ) }
               </div>
             ) }
