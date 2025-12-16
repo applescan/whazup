@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Event } from "@/types/Event";
 import { mapEventfindaEventsToEvents } from "@/utils/eventMapper";
 
@@ -17,22 +17,42 @@ interface ApiResponse {
   error?: string;
 }
 
+const EVENTS_PAGE_SIZE = 10;
+
+interface FetchOptions {
+  append?: boolean;
+  offset?: number;
+}
+
 export function useEvents(location: string, categoryIds?: string) {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const nextOffsetRef = useRef(0);
 
-  useEffect(() => {
-    if (!location) return;
+  const fetchEvents = useCallback(
+    async ({ append = false, offset }: FetchOptions = {}) => {
+      if (!location) return;
 
-    const fetchEvents = async () => {
-      setLoading(true);
-      setError(null);
+      const offsetToUse =
+        typeof offset === "number"
+          ? offset
+          : append
+            ? nextOffsetRef.current
+            : 0;
+
+      append ? setLoadingMore(true) : setLoading(true);
+      if (!append) {
+        setError(null);
+      }
 
       try {
         const params = new URLSearchParams({
-          location: location,
-          limit: "50",
+          location,
+          limit: EVENTS_PAGE_SIZE.toString(),
+          offset: offsetToUse.toString(),
         });
 
         if (categoryIds) {
@@ -49,26 +69,63 @@ export function useEvents(location: string, categoryIds?: string) {
 
         if (result.success && result.data?.events) {
           const mappedEvents = mapEventfindaEventsToEvents(result.data.events);
-          setEvents(mappedEvents);
 
-          if (mappedEvents.length === 0) {
-            setError("No events found for the selected categories in this location.");
-          }
+          setEvents((prev) => {
+            const combined = append ? [...prev, ...mappedEvents] : mappedEvents;
+            const newOffset = offsetToUse + mappedEvents.length;
+            nextOffsetRef.current = newOffset;
+
+            const totalCount = result.data?.count ?? 0;
+            const moreAvailable =
+              mappedEvents.length === EVENTS_PAGE_SIZE &&
+              (totalCount === 0 || newOffset < totalCount);
+
+            setHasMore(moreAvailable);
+
+            if (!append && combined.length === 0) {
+              setError("No events found for the selected categories in this location.");
+            }
+
+            return combined;
+          });
         } else {
-          setEvents([]);
+          if (!append) {
+            setEvents([]);
+          }
+          setHasMore(false);
           setError(result.error || "Unable to load events.");
         }
       } catch (err) {
         console.error("Failed to fetch events:", err);
-        setError("Unable to connect to the event service. Please try again.");
-        setEvents([]);
+        if (!append) {
+          setError("Unable to connect to the event service. Please try again.");
+          setEvents([]);
+          setHasMore(false);
+        }
       } finally {
-        setLoading(false);
+        append ? setLoadingMore(false) : setLoading(false);
       }
-    };
+    },
+    [location, categoryIds]
+  );
 
-    fetchEvents();
-  }, [location, categoryIds]);
+  useEffect(() => {
+    if (!location) {
+      setEvents([]);
+      setHasMore(false);
+      return;
+    }
 
-  return { events, loading, error };
+    nextOffsetRef.current = 0;
+    setEvents([]);
+    setHasMore(true);
+    fetchEvents({ append: false, offset: 0 });
+  }, [location, categoryIds, fetchEvents]);
+
+  const loadMore = useCallback(() => {
+    if (loading || loadingMore || !hasMore) return;
+    fetchEvents({ append: true });
+  }, [fetchEvents, loading, loadingMore, hasMore]);
+
+  return { events, loading, error, loadMore, hasMore, loadingMore };
 }

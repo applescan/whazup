@@ -15,12 +15,20 @@ export default function Home() {
   const [currentState, setCurrentState] = useState<AppState>(AppState.Welcome);
   const [selectedLocation, setSelectedLocation] = useState<string>("");
   const [likedCategories, setLikedCategories] = useState<Category[]>([]);
-  const { categories, loading: categoriesLoading } = useCategories();
+  const {
+    categories,
+    loading: categoriesLoading,
+    reloadCategories,
+    loadedLocation,
+  } = useCategories(selectedLocation);
   const categoryIds = likedCategories.map((c) => c.id).join(",");
   const {
     events: recommendedEvents,
     loading: eventsLoading,
     error,
+    loadMore,
+    hasMore,
+    loadingMore,
   } = useEvents(selectedLocation, categoryIds);
 
   const questionList = useMemo(() => {
@@ -62,24 +70,38 @@ export default function Home() {
   };
 
   const handleKeepSwiping = () => {
+    reloadCategories();
+    setLikedCategories([]);
     setCurrentState(AppState.SwipingCategories);
   };
 
   const handleReturnHome = () => {
+    reloadCategories();
     setCurrentState(AppState.Welcome);
     setSelectedLocation("");
     setLikedCategories([]);
   };
 
   const handleBackToSwiping = () => {
+    reloadCategories();
+    setLikedCategories([]);
     setCurrentState(AppState.SwipingCategories);
   };
 
   useEffect(() => {
-    if (currentState === AppState.Loading && !categoriesLoading) {
+    const readyForSelectedLocation =
+      !categoriesLoading && loadedLocation === selectedLocation;
+
+    if (currentState === AppState.Loading && readyForSelectedLocation) {
       handleCategoriesLoaded();
     }
-  }, [currentState, categoriesLoading, categories]);
+  }, [
+    currentState,
+    categoriesLoading,
+    categories,
+    loadedLocation,
+    selectedLocation,
+  ]);
 
   switch (currentState) {
     case AppState.Welcome:
@@ -115,6 +137,9 @@ export default function Home() {
           error={ error }
           onBack={ handleBackToSwiping }
           onReturnHome={ handleReturnHome }
+          onLoadMore={ loadMore }
+          hasMore={ hasMore }
+          loadingMore={ loadingMore }
         />
       );
 

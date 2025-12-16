@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, ComponentType, useEffect } from "react";
+import React, { useState, ComponentType, useEffect, useRef } from "react";
 import { ArrowLeft, ExternalLink, Calendar, MapPin, DollarSign, Sparkles, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { Event } from "@/types/Event";
@@ -11,6 +11,9 @@ interface RecommendationsScreenProps {
   error: string | null;
   onBack: () => void;
   onReturnHome: () => void;
+  onLoadMore: () => void;
+  hasMore: boolean;
+  loadingMore: boolean;
 }
 
 const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
@@ -19,13 +22,41 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
   error,
   onBack,
   onReturnHome,
+  onLoadMore,
+  hasMore,
+  loadingMore,
 }) => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isAnimated, setIsAnimated] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setTimeout(() => setIsAnimated(true), 100);
   }, []);
+
+  useEffect(() => {
+    if (!hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loadingMore) {
+          onLoadMore();
+        }
+      },
+      { threshold: 1 }
+    );
+
+    const current = loadMoreRef.current;
+    if (current) {
+      observer.observe(current);
+    }
+
+    return () => {
+      if (current) {
+        observer.unobserve(current);
+      }
+      observer.disconnect();
+    };
+  }, [hasMore, loadingMore, onLoadMore, events.length]);
 
   const handleEventClick = (url?: string) => {
     if (url) window.open(url, "_blank");
@@ -277,6 +308,18 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
                 </div>
               </motion.button>
             )) }
+            { hasMore && (
+              <div ref={ loadMoreRef } className="flex items-center justify-center py-6">
+                { loadingMore ? (
+                  <div className="flex items-center gap-2 text-white/80 text-sm">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-cyan-400"></div>
+                    Loading more events...
+                  </div>
+                ) : (
+                  <span className="text-white/70 text-sm">Scroll to load more events</span>
+                ) }
+              </div>
+            ) }
           </div>
 
           <motion.div
