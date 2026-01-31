@@ -25,7 +25,7 @@ export function useLocations() {
     setError(null);
 
     try {
-      const res = await fetch(`/api/locations?rows=100&levels=2`);
+      const res = await fetch(`/api/locations?rows=10&levels=2`);
       const data: LocationsResponse & { error?: string } = await res.json();
 
       if (data.error) throw new Error(data.error);
@@ -39,8 +39,8 @@ export function useLocations() {
         children: Array.isArray(loc.children)
           ? loc.children
           : Array.isArray(loc.children?.children)
-          ? loc.children.children
-          : [],
+            ? loc.children.children
+            : [],
       });
 
       const flattenLocations = (loc: Location): Location[] => {
