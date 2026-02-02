@@ -29,28 +29,12 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isAnimated, setIsAnimated] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const scrollPositionRef = useRef(0);
   const heroEvent = events[0];
   const secondaryEvents = heroEvent ? events.slice(1) : events;
-  const freeExperiences = events.filter((event) => {
-    if (event.isFree) return true;
-    if (!event.price) return false;
-    return event.price.toLowerCase().includes("free");
-  }).length;
-  const uniqueCategories = Array.from(
-    new Set(events.map((event) => event.category).filter(Boolean))
-  ).length;
   const curatedScore = Math.min(99, Math.max(72, 65 + events.length * 3));
   const vibeLabel = curatedScore > 92 ? "Best Match" : curatedScore > 85 ? "Lively" : "Chill";
-  const highlightStats = [
-    { label: "Curated Picks", value: events.length || "-" },
-    { label: "Free Experiences", value: freeExperiences || 0 },
-    { label: "Unique Categories", value: uniqueCategories || 1 },
-  ];
-  const accentGradients = [
-    "from-purple-500/20 to-cyan-500/20",
-    "from-pink-500/20 to-orange-500/20",
-    "from-blue-500/20 to-emerald-500/20",
-  ];
+
 
   useEffect(() => {
     setTimeout(() => setIsAnimated(true), 100);
@@ -82,6 +66,23 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
 
   const handleEventClick = (url?: string) => {
     if (url) window.open(url, "_blank");
+  };
+
+  const handleOpenEventDetails = (event: Event) => {
+    if (typeof window !== "undefined") {
+      scrollPositionRef.current = window.scrollY;
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }
+    setSelectedEvent(event);
+  };
+
+  const handleBackToEventList = () => {
+    setSelectedEvent(null);
+    if (typeof window !== "undefined") {
+      window.requestAnimationFrame(() => {
+        window.scrollTo({ top: scrollPositionRef.current, left: 0, behavior: "auto" });
+      });
+    }
   };
 
   if (loading) {
@@ -148,7 +149,7 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
           <div className="max-w-2xl mx-auto">
             <div className="mb-6">
               <button
-                onClick={ () => setSelectedEvent(null) }
+                onClick={ handleBackToEventList }
                 className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full transition-all duration-300 hover:bg-white/20 border border-white/20"
               >
                 <ArrowLeft className="w-4 h-4 text-white" />
@@ -347,7 +348,7 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
 
                     <div className="flex flex-col sm:flex-row gap-3">
                       <button
-                        onClick={ () => setSelectedEvent(heroEvent) }
+                        onClick={ () => handleOpenEventDetails(heroEvent) }
                         className="flex-1 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-semibold py-4 rounded-xl transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg"
                       >
                         Dive Into Details
@@ -364,27 +365,11 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
               </div>
             </motion.div>
           ) }
-
-          <div className="grid gap-4 sm:grid-cols-3 mb-10">
-            { highlightStats.map((stat) => (
-              <motion.div
-                key={ stat.label }
-                className="rounded-2xl border border-white/15 bg-white/5 backdrop-blur-lg p-4"
-                initial={ { opacity: 0, y: 10 } }
-                animate={ { opacity: 1, y: 0 } }
-                transition={ { duration: 0.4 } }
-              >
-                <p className="text-xs uppercase tracking-widest text-white/60 mb-1">{ stat.label }</p>
-                <p className="text-2xl font-semibold text-white">{ stat.value }</p>
-              </motion.div>
-            )) }
-          </div>
-
           <div className="space-y-6">
             { secondaryEvents.map((event, index) => (
               <motion.button
                 key={ event.id }
-                onClick={ () => setSelectedEvent(event) }
+                onClick={ () => handleOpenEventDetails(event) }
                 className="w-full group"
                 initial={ { opacity: 0, y: 20 } }
                 animate={ { opacity: 1, y: 0 } }
