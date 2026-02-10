@@ -43,26 +43,37 @@ export function useLocations() {
             : [],
       });
 
-      const flattenLocations = (loc: Location): Location[] => {
-        if (!loc) return [];
-        const result: Location[] = [];
+      const flattenLocations = (
+        input: Location | Location[] | undefined | null
+      ): Location[] => {
+        if (!input) return [];
+        if (Array.isArray(input)) {
+          const result: Location[] = [];
+          for (const item of input) {
+            result.push(...flattenLocations(item));
+          }
+          return result;
+        }
 
-        const normalized = normalizeChildren(loc);
+        const result: Location[] = [];
+        const normalized = normalizeChildren(input);
 
         if (normalized.children?.length) {
           for (const child of normalized.children) {
-            const childAndDescendants = flattenLocations(child);
-            result.push(...childAndDescendants);
+            result.push(...flattenLocations(child));
           }
-        }
-        if (!normalized.children?.length) {
+        } else {
           result.push(normalized);
         }
 
         return result;
       };
 
-      const flatList = flattenLocations(data.locations[1] || []);
+      const rootLocations =
+        Array.isArray(data.locations) && data.locations.length > 0
+          ? data.locations
+          : [];
+      const flatList = flattenLocations(rootLocations);
 
       const filtered = flatList.filter(
         (loc) => !loc.is_venue && (loc.count_current_events ?? 0) > 10
