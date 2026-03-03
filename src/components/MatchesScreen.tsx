@@ -7,17 +7,78 @@ import { Heart, Sparkles, ArrowRight, RefreshCw } from "lucide-react";
 interface MatchesScreenProps {
   onCheckRecommendations: () => void;
   onKeepSwiping: () => void;
+  likedCount: number;
 }
 
 const MatchesScreen: ComponentType<MatchesScreenProps> = ({
   onCheckRecommendations,
   onKeepSwiping,
+  likedCount,
 }) => {
   const [isAnimated, setIsAnimated] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setIsAnimated(true), 300);
   }, []);
+
+  if (likedCount === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-16">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 -left-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/3 -right-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        </div>
+
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
+
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-full p-6 text-white">
+          <div className="text-center max-w-md mx-auto">
+            <motion.div
+              className="mb-8 flex justify-center items-center"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center shadow-2xl">
+                <Sparkles className="w-10 h-10 text-cyan-300" />
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              <h1 className="text-3xl sm:text-4xl font-bold mb-3 bg-gradient-to-r from-white via-cyan-200 to-purple-200 bg-clip-text text-transparent">
+                No match this time
+              </h1>
+              <p className="text-white/80 text-lg leading-relaxed">
+                Try swiping right on a few categories or adjust your time window.
+              </p>
+            </motion.div>
+
+            <motion.div
+              className="space-y-4 mt-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <motion.button
+                onClick={onKeepSwiping}
+                className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 group flex items-center justify-center gap-3"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <RefreshCw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
+                <span>Keep Exploring</span>
+              </motion.button>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-16">

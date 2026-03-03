@@ -8,19 +8,22 @@ import SwipeScreen from "@/components/SwipeScreen";
 import MatchesScreen from "@/components/MatchesScreen";
 import RecommendationsScreen from "@/components/RecommendationsScreen";
 import { Category, useCategories } from "@/hooks/useCategories";
+import { EventDateFilter } from "@/types/Event";
 import { AppState, shuffleArray } from "@/utils/helpers";
 import { questions } from "@/data/Questions";
 
 export default function Home() {
   const [currentState, setCurrentState] = useState<AppState>(AppState.Welcome);
   const [selectedLocation, setSelectedLocation] = useState<string>("");
+  const [selectedDateFilter, setSelectedDateFilter] =
+    useState<EventDateFilter>("future");
   const [likedCategories, setLikedCategories] = useState<Category[]>([]);
   const {
     categories,
     loading: categoriesLoading,
     reloadCategories,
     loadedLocation,
-  } = useCategories(selectedLocation);
+  } = useCategories(selectedLocation, selectedDateFilter);
   const categoryIds = likedCategories.map((c) => c.id).join(",");
   const {
     events: recommendedEvents,
@@ -29,7 +32,12 @@ export default function Home() {
     loadMore,
     hasMore,
     loadingMore,
-  } = useEvents(selectedLocation, categoryIds);
+  } = useEvents(
+    selectedLocation,
+    categoryIds,
+    selectedDateFilter,
+    likedCategories.length > 0
+  );
 
   const questionList = useMemo(() => {
     const seen = new Set<number>();
@@ -42,8 +50,9 @@ export default function Home() {
     });
   }, [categories]);
 
-  const handleLocationSelect = (location: string) => {
+  const handleLocationSelect = (location: string, dateFilter: EventDateFilter) => {
     setSelectedLocation(location);
+    setSelectedDateFilter(dateFilter);
     setCurrentState(AppState.Loading);
   };
 
@@ -79,6 +88,7 @@ export default function Home() {
     reloadCategories();
     setCurrentState(AppState.Welcome);
     setSelectedLocation("");
+    setSelectedDateFilter("future");
     setLikedCategories([]);
   };
 
@@ -126,6 +136,7 @@ export default function Home() {
         <MatchesScreen
           onCheckRecommendations={ handleCheckRecommendations }
           onKeepSwiping={ handleKeepSwiping }
+          likedCount={ likedCategories.length }
         />
       );
 
@@ -135,6 +146,7 @@ export default function Home() {
           events={ recommendedEvents }
           loading={ eventsLoading }
           error={ error }
+          likedCount={ likedCategories.length }
           onBack={ handleBackToSwiping }
           onReturnHome={ handleReturnHome }
           onLoadMore={ loadMore }

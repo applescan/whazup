@@ -3,11 +3,11 @@
 import React, { useState, useEffect, ComponentType } from "react";
 import { ChevronDown, MapPin, ArrowRight, Sparkles } from "lucide-react";
 import { useLocations } from "@/hooks/useLocations";
-import { Region } from "@/types/Event";
+import { EventDateFilter, Region } from "@/types/Event";
 import ErrorScreen from "./ErrorScreen";
 
 interface WelcomeScreenProps {
-  onContinue: (locationSlug: string) => void;
+  onContinue: (locationSlug: string, dateFilter: EventDateFilter) => void;
 }
 
 interface GroupedLocation {
@@ -37,6 +37,7 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
   const { locations, loading, error, refetch } = useLocations();
   const [selectedLocation, setSelectedLocation] =
     useState<GroupedLocation | null>(null);
+  const [dateFilter, setDateFilter] = useState<EventDateFilter>("future");
   const [showDropdown, setShowDropdown] = useState(false);
   const [grouped, setGrouped] = useState<Record<string, GroupedLocation[]>>({});
   const [isAnimated, setIsAnimated] = useState(false);
@@ -130,7 +131,7 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
 
   const handleContinue = () => {
     if (selectedLocation) {
-      onContinue(selectedLocation.slug);
+      onContinue(selectedLocation.slug, dateFilter);
     }
   };
 
@@ -263,6 +264,40 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
                   </div>
                 </div>
               ) }
+            </div>
+
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="w-4 h-4 text-cyan-400" />
+                <h3 className="text-sm font-semibold text-white">When?</h3>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                { [
+                  { value: "future", label: "Future events" },
+                  { value: "today", label: "Today" },
+                  { value: "this_week", label: "This week" },
+                  { value: "this_weekend", label: "This weekend" },
+                ].map((option) => {
+                  const isActive = dateFilter === option.value;
+                  return (
+                    <button
+                      key={ option.value }
+                      onClick={ () =>
+                        setDateFilter(option.value as EventDateFilter)
+                      }
+                      className={ `rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 border ${isActive
+                        ? "bg-white text-gray-900 border-white shadow-lg"
+                        : "bg-white/10 text-white/80 border-white/20 hover:bg-white/20"
+                        }` }
+                    >
+                      { option.label }
+                    </button>
+                  );
+                }) }
+              </div>
+              <p className="text-xs text-white/60 mt-3">
+                Default is future-only, so you never miss what’s next.
+              </p>
             </div>
 
             <button

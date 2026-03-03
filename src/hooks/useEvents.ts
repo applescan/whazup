@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Event } from "@/types/Event";
+import { Event, EventDateFilter } from "@/types/Event";
 import { mapEventfindaEventsToEvents } from "@/utils/eventMapper";
 
 interface ApiResponse {
@@ -24,7 +24,12 @@ interface FetchOptions {
   offset?: number;
 }
 
-export function useEvents(location: string, categoryIds?: string) {
+export function useEvents(
+  location: string,
+  categoryIds?: string,
+  dateFilter: EventDateFilter = "future",
+  requireCategory: boolean = false
+) {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -35,6 +40,14 @@ export function useEvents(location: string, categoryIds?: string) {
   const fetchEvents = useCallback(
     async ({ append = false, offset }: FetchOptions = {}) => {
       if (!location) return;
+      if (requireCategory && !categoryIds) {
+        setEvents([]);
+        setHasMore(false);
+        setError(null);
+        setLoading(false);
+        setLoadingMore(false);
+        return;
+      }
 
       const offsetToUse =
         typeof offset === "number"
@@ -57,6 +70,10 @@ export function useEvents(location: string, categoryIds?: string) {
 
         if (categoryIds) {
           params.append("category", categoryIds);
+        }
+
+        if (dateFilter) {
+          params.append("dateFilter", dateFilter);
         }
 
         const response = await fetch(`/api/events?${params.toString()}`);
@@ -106,7 +123,7 @@ export function useEvents(location: string, categoryIds?: string) {
         append ? setLoadingMore(false) : setLoading(false);
       }
     },
-    [location, categoryIds]
+    [location, categoryIds, dateFilter, requireCategory]
   );
 
   useEffect(() => {
@@ -120,7 +137,7 @@ export function useEvents(location: string, categoryIds?: string) {
     setEvents([]);
     setHasMore(true);
     fetchEvents({ append: false, offset: 0 });
-  }, [location, categoryIds, fetchEvents]);
+  }, [location, categoryIds, dateFilter, requireCategory, fetchEvents]);
 
   const loadMore = useCallback(() => {
     if (loading || loadingMore || !hasMore) return;

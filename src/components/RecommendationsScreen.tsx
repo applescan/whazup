@@ -9,6 +9,7 @@ interface RecommendationsScreenProps {
   events: Event[];
   loading: boolean;
   error: string | null;
+  likedCount: number;
   onBack: () => void;
   onReturnHome: () => void;
   onLoadMore: () => void;
@@ -20,6 +21,7 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
   events,
   loading,
   error,
+  likedCount,
   onBack,
   onReturnHome,
   onLoadMore,
@@ -84,6 +86,45 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
       });
     }
   };
+
+  if (likedCount === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-16">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 -left-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/3 -right-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-full p-6 text-center">
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20 max-w-md">
+            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Sparkles className="w-8 h-8 text-cyan-300" />
+            </div>
+            <h2 className="text-xl font-semibold text-white mb-2">
+              We couldn’t find you a match this time
+            </h2>
+            <p className="text-white/80 mb-6">
+              Try swiping right on a few categories or change your time window to see matches.
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={ onBack }
+                className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105"
+              >
+                Back to Swiping
+              </button>
+              <button
+                onClick={ onReturnHome }
+                className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-semibold py-3 px-6 rounded-xl border border-white/20 transition-all duration-300 hover:scale-105"
+              >
+                Start Over
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -448,14 +489,14 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
           </div>
 
           <motion.div
-            className="mt-8"
-            initial={ { opacity: 0 } }
-            animate={ { opacity: 1 } }
-            transition={ { delay: events.length * 0.1 + 0.3 } }
+            className="fixed bottom-6 left-0 right-0 z-20 flex justify-center px-6"
+            initial={ { opacity: 0, y: 10 } }
+            animate={ { opacity: 1, y: 0 } }
+            transition={ { delay: Math.min(0.6, events.length * 0.05 + 0.2) } }
           >
             <button
               onClick={ onReturnHome }
-              className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-semibold py-4 px-6 rounded-xl border border-white/20 transition-all duration-300 hover:scale-105"
+              className="bg-indigo-900/60 hover:bg-indigo-900/80 backdrop-blur-sm text-white font-semibold py-3 px-12 rounded-full border border-white/20 shadow-xl transition-all duration-300 hover:scale-105"
             >
               Start Over
             </button>

@@ -1,5 +1,6 @@
 import { mapEventfindaEventToEvent } from "@/utils/eventMapper";
 import { useCallback, useEffect, useState } from "react";
+import { Event, EventDateFilter } from "@/types/Event";
 
 export interface Category {
   imageUrl: string;
@@ -29,7 +30,11 @@ interface UnsplashPhoto {
   };
 }
 
-async function fetchEventImageForCategory(category: Category, location?: string): Promise<string | null> {
+async function fetchEventForCategory(
+  category: Category,
+  location?: string,
+  dateFilter?: EventDateFilter
+): Promise<Event | null> {
   if (!category.count_current_events) {
     return null;
   }
@@ -47,6 +52,10 @@ async function fetchEventImageForCategory(category: Category, location?: string)
       params.append("location", location);
     }
 
+    if (dateFilter) {
+      params.append("dateFilter", dateFilter);
+    }
+
     const eventRes = await fetch(`/api/events?${params.toString()}`, {
       signal: controller.signal,
       headers: {
@@ -60,8 +69,7 @@ async function fetchEventImageForCategory(category: Category, location?: string)
       const eventData = await eventRes.json();
 
       if (eventData.success && eventData.data?.events?.length > 0) {
-        const mappedEvent = mapEventfindaEventToEvent(eventData.data.events[0]);
-        return mappedEvent.image || null;
+        return mapEventfindaEventToEvent(eventData.data.events[0]);
       }
     } else {
       console.warn(`Failed to fetch events for category ${category.name}: ${eventRes.status}`);
@@ -116,7 +124,7 @@ interface LoadCategoriesOptions {
   clearCache?: boolean;
 }
 
-export function useCategories(location?: string) {
+export function useCategories(location?: string, dateFilter?: EventDateFilter) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -159,7 +167,12 @@ export function useCategories(location?: string) {
 
       const categoriesWithImages = await Promise.all(
         categories.map(async (cat) => {
-          const imageFromEvents = await fetchEventImageForCategory(cat, location);
+          const event = await fetchEventForCategory(cat, location, dateFilter);
+          if (!event) {
+            return null;
+          }
+
+          const imageFromEvents = event.image || null;
           const imageFromUnsplash = imageFromEvents ? null : await fetchUnsplashImage(cat.name);
 
           return {
@@ -169,7 +182,18 @@ export function useCategories(location?: string) {
         })
       );
 
-      setCategories(categoriesWithImages);
+      const filteredCategories = categoriesWithImages.filter(
+        (cat): cat is Category => Boolean(cat)
+      );
+
+      if (filteredCategories.length === 0) {
+        setCategories([]);
+        setLoadedLocation(location || "");
+        setError("No events found for that time window.");
+        return;
+      }
+
+      setCategories(filteredCategories);
       setLoadedLocation(location || "");
 
     } catch (err: any) {
@@ -191,7 +215,7 @@ export function useCategories(location?: string) {
     } finally {
       setLoading(false);
     }
-  }, [location]);
+  }, [location, dateFilter]);
 
   useEffect(() => {
     loadCategories();

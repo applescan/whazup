@@ -5,9 +5,75 @@ const EVENTFINDA_BASE_URL = "https://api.eventfinda.co.nz/v2";
 const API_USERNAME = process.env.EVENTFINDA_USERNAME!;
 const API_PASSWORD = process.env.EVENTFINDA_PASSWORD!;
 
+const DATE_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
+  timeZone: "UTC",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+};
+
+function formatDate(date: Date) {
+  const parts = new Intl.DateTimeFormat("en-CA", DATE_FORMAT_OPTIONS)
+    .formatToParts(date)
+    .reduce<Record<string, string>>((acc, part) => {
+      if (part.type !== "literal") acc[part.type] = part.value;
+      return acc;
+    }, {});
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+function addDays(date: Date, days: number) {
+  const next = new Date(date);
+  next.setUTCDate(next.getUTCDate() + days);
+  return next;
+}
+
+function buildDateFilter(dateFilter: string | null) {
+  const today = new Date();
+  const todayUtc = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
+  );
+
+  switch (dateFilter) {
+    case "today":
+      return { start_date: formatDate(todayUtc), end_date: formatDate(todayUtc) };
+    case "this_week": {
+      const day = todayUtc.getUTCDay();
+      const daysUntilSunday = (7 - day) % 7;
+      const end = addDays(todayUtc, daysUntilSunday);
+      return { start_date: formatDate(todayUtc), end_date: formatDate(end) };
+    }
+    case "this_weekend": {
+      const day = todayUtc.getUTCDay();
+      let start: Date;
+      let end: Date;
+
+      if (day === 6) {
+        start = todayUtc;
+        end = addDays(todayUtc, 1);
+      } else if (day === 0) {
+        start = todayUtc;
+        end = todayUtc;
+      } else {
+        const daysUntilSaturday = 6 - day;
+        start = addDays(todayUtc, daysUntilSaturday);
+        end = addDays(start, 1);
+      }
+
+      return { start_date: formatDate(start), end_date: formatDate(end) };
+    }
+    case "future": {
+      const tomorrow = addDays(todayUtc, 1);
+      return { start_date: formatDate(tomorrow) };
+    }
+    default:
+      return { start_date: formatDate(todayUtc) };
+  }
+}
+
 async function makeEventfindaRequest(
   endpoint: string,
-  params: Record<string, string> = {}
+  params: Record<string, string | undefined> = {}
 ): Promise<any> {
   const url = new URL(`${EVENTFINDA_BASE_URL}${endpoint}`);
 
@@ -47,14 +113,15 @@ export async function GET(request: NextRequest) {
   const offset = searchParams.get("offset") || "0";
   const category = searchParams.get("category");
   const query = searchParams.get("q");
+  const dateFilter = searchParams.get("dateFilter");
 
-  const params: Record<string, string> = {
+  const params: Record<string, string | undefined> = {
     rows: limit,
     offset: offset,
     order: "date",
-    start_date: new Date().toISOString().split("T")[0],
     fields:
       "id,name,url,description,datetime_start,datetime_end,location_summary,address,venue,category,images,point,is_free,price_display,ticket_types",
+    ...buildDateFilter(dateFilter),
   };
 
   if (location) {

@@ -71,6 +71,12 @@ export interface EventfindaResponse {
   page_number: number;
 }
 
+export type EventDateFilter =
+  | "future"
+  | "today"
+  | "this_week"
+  | "this_weekend";
+
 export enum Region {
   Northland = "Northland",
   Auckland = "Auckland",
