@@ -7,6 +7,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import SwipeScreen from "@/components/SwipeScreen";
 import MatchesScreen from "@/components/MatchesScreen";
 import RecommendationsScreen from "@/components/RecommendationsScreen";
+import ChatScreen from "@/components/ChatScreen";
 import { Category, useCategories } from "@/hooks/useCategories";
 import { EventDateFilter } from "@/types/Event";
 import { AppState, shuffleArray } from "@/utils/helpers";
@@ -54,6 +55,12 @@ export default function Home() {
     setSelectedLocation(location);
     setSelectedDateFilter(dateFilter);
     setCurrentState(AppState.Loading);
+  };
+
+  const handleOpenChat = (location: string, dateFilter: EventDateFilter) => {
+    setSelectedLocation(location);
+    setSelectedDateFilter(dateFilter);
+    setCurrentState(AppState.Chat);
   };
 
   const handleCategoryLiked = (category: Category) => {
@@ -115,7 +122,7 @@ export default function Home() {
 
   switch (currentState) {
     case AppState.Welcome:
-      return <WelcomeScreen onContinue={ handleLocationSelect } />;
+      return <WelcomeScreen onContinue={ handleLocationSelect } onOpenChat={ handleOpenChat } />;
 
     case AppState.Loading:
       return <LoadingScreen />;
@@ -155,7 +162,21 @@ export default function Home() {
         />
       );
 
+    case AppState.Chat:
+      return (
+        <ChatScreen
+          location={ selectedLocation }
+          dateFilter={ selectedDateFilter }
+          onBack={ handleReturnHome }
+        />
+      );
+
     default:
-      return <WelcomeScreen onContinue={ handleLocationSelect } />;
+      return (
+        <WelcomeScreen
+          onContinue={ handleLocationSelect }
+          onOpenChat={ handleOpenChat }
+        />
+      );
   }
 }

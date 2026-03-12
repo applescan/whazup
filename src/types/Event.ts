@@ -10,6 +10,7 @@ export interface Event {
   url?: string;
   price?: string;
   isFree?: boolean;
+  whyThis?: string;
 }
 
 export interface UserPreferences {

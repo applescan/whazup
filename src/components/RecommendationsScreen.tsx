@@ -89,14 +89,14 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
 
   if (likedCount === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-16">
+      <div className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 sm:py-16">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 -left-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-1/3 -right-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-full p-6 text-center">
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20 max-w-md">
+        <div className="relative z-10 flex min-h-full flex-col items-center justify-center p-4 text-center sm:p-6">
+          <div className="w-full max-w-md rounded-2xl border border-white/20 bg-white/10 p-6 shadow-2xl backdrop-blur-lg sm:p-8">
             <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <Sparkles className="w-8 h-8 text-cyan-300" />
             </div>
@@ -128,15 +128,15 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-16">
+      <div className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 sm:py-16">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 -left-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-1/3 -right-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
         </div>
 
-        <div className="relative z-10 flex items-center justify-center min-h-full">
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20">
+        <div className="relative z-10 flex min-h-full items-center justify-center px-4 sm:px-6">
+          <div className="w-full max-w-md rounded-2xl border border-white/20 bg-white/10 p-6 shadow-2xl backdrop-blur-lg sm:p-8">
             <div className="flex items-center gap-3">
               <div className="animate-spin rounded-full h-6 w-6 border-2 border-white/30 border-t-cyan-400"></div>
               <p className="text-white text-lg font-medium">
@@ -151,15 +151,15 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-16">
+      <div className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 sm:py-16">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 -left-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-1/3 -right-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
 
-        <div className="relative z-10 flex flex-col items-center justify-center min-h-full p-6 text-center">
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20 max-w-md">
+        <div className="relative z-10 flex min-h-full flex-col items-center justify-center p-4 text-center sm:p-6">
+          <div className="w-full max-w-md rounded-2xl border border-white/20 bg-white/10 p-6 shadow-2xl backdrop-blur-lg sm:p-8">
             <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <ExternalLink className="w-8 h-8 text-red-400" />
             </div>
@@ -179,15 +179,15 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
 
   if (selectedEvent) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-16">
+      <div className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 sm:py-16">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 -left-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-1/3 -right-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
         </div>
 
-        <div className="relative z-10 p-6 sm:p-6">
-          <div className="max-w-2xl mx-auto">
+        <div className="relative z-10 px-4 sm:px-6">
+          <div className="mx-auto w-full max-w-3xl">
             <div className="mb-6">
               <button
                 onClick={ handleBackToEventList }
@@ -201,9 +201,9 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
             <motion.div
               initial={ { opacity: 0, y: 20 } }
               animate={ { opacity: 1, y: 0 } }
-              className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden border border-white/20"
+              className="overflow-hidden rounded-3xl border border-white/20 bg-white/95 shadow-2xl backdrop-blur-lg"
             >
-              <div className="relative h-64 sm:h-80">
+              <div className="relative aspect-[4/3] w-full sm:aspect-[16/9]">
                 <img
                   src={ selectedEvent.image }
                   alt={ selectedEvent.title }
@@ -219,19 +219,19 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
                 </div>
               </div>
 
-              <div className="p-6 sm:p-8">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+              <div className="p-4 sm:p-8">
+                <h1 className="mb-4 break-words text-2xl font-bold text-gray-900 sm:text-3xl">
                   { selectedEvent.title }
                 </h1>
 
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center gap-3">
+                <div className="mb-6 space-y-3">
+                  <div className="flex items-start gap-3">
                     <div className="p-2 bg-purple-100 rounded-lg">
                       <MapPin className="w-4 h-4 text-purple-600" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       { selectedEvent.location && (
-                        <p className="text-sm text-gray-600">{ selectedEvent.location }</p>
+                        <p className="break-words text-sm text-gray-600">{ selectedEvent.location }</p>
                       ) }
                     </div>
                   </div>
@@ -253,15 +253,15 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
                   ) }
                 </div>
 
-                <div className="bg-gray-50 rounded-2xl p-4 mb-6">
-                  <p className="text-gray-700 leading-relaxed">
+                <div className="mb-6 rounded-2xl bg-gray-50 p-4">
+                  <p className="break-words text-gray-700 leading-relaxed">
                     { selectedEvent.fullDescription || selectedEvent.description }
                   </p>
                 </div>
 
                 <button
                   onClick={ () => handleEventClick(selectedEvent.url) }
-                  className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-600 px-6 py-4 text-center font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:from-purple-700 hover:to-cyan-700"
                 >
                   <ExternalLink className="w-5 h-5" />
                   Get Tickets on Eventfinda
@@ -284,19 +284,19 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-16">
+    <div className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-8 sm:py-16">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 -left-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/3 -right-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
       </div>
 
-      <div className="relative z-10 p-6 sm:p-6">
-        <div className="max-w-2xl mx-auto">
+      <div className="relative z-10 px-4 sm:px-6">
+        <div className="mx-auto w-full max-w-3xl">
           <div className={ `mb-8 transition-all duration-1000 ${isAnimated ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}` }>
             <button
               onClick={ onBack }
-              className="flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full transition-all duration-300 hover:bg-white/20 border border-white/20 mb-6"
+              className="mb-6 flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-sm transition-all duration-300 hover:bg-white/20"
             >
               <ArrowLeft className="w-4 h-4 text-white" />
               <span className="text-white text-sm font-medium">Back</span>
@@ -305,11 +305,11 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
             <div className="text-center">
               <div className="flex items-center justify-center gap-2 mb-4">
                 <Sparkles className="w-6 h-6 text-cyan-400" />
-                <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-white via-cyan-200 to-purple-200 bg-clip-text text-transparent">
+                <h1 className="bg-gradient-to-r from-white via-cyan-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent sm:text-4xl">
                   Your Recommendations
                 </h1>
               </div>
-              <p className="text-white/80 text-lg">
+              <p className="text-base text-white/80 sm:text-lg">
                 Perfect events curated just for you
               </p>
             </div>
@@ -322,16 +322,16 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
               animate={ { opacity: 1, y: 0 } }
               transition={ { duration: 0.5 } }
             >
-              <div className="relative overflow-hidden rounded-3xl border border-white/20 bg-white/5 backdrop-blur-xl shadow-2xl">
+              <div className="relative w-full overflow-hidden rounded-3xl border border-white/20 bg-white/5 shadow-2xl backdrop-blur-xl">
                 <div className="absolute inset-0 opacity-60 bg-gradient-to-r from-purple-900/40 via-transparent to-cyan-900/40" />
-                <div className="relative z-10 flex flex-col gap-6 p-6 sm:p-8">
-                  <div className="relative rounded-2xl overflow-hidden border border-white/20 lg:max-w-[1170px] aspect-[1170/504]">
+                <div className="relative z-10 flex flex-col gap-5 p-4 sm:gap-6 sm:p-8">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-white/20 sm:aspect-[16/9]">
                     <img
                       src={ heroEvent.image }
                       alt={ heroEvent.title }
                       className="absolute inset-0 w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent lg:max-w-[1170px] aspect-[1170/504]" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                     <div className="absolute top-4 left-4 flex items-center gap-2">
                       <span className="px-3 py-1 rounded-full bg-white/90 text-xs font-semibold text-gray-800 flex items-center gap-1">
                         <Sparkles className="w-3 h-3 text-purple-500" />
@@ -341,32 +341,32 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
                   </div>
 
                   <div className="flex flex-col gap-6">
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-sm uppercase tracking-wider text-white/70 mb-2 flex items-center gap-2">
                         <Compass className="w-4 h-4 text-cyan-300" />
                         Spotlight Experience
                       </p>
-                      <h2 className="text-3xl font-bold text-white leading-tight mb-3">
+                      <h2 className="mb-3 break-words text-2xl font-bold leading-tight text-white sm:text-3xl">
                         { heroEvent.title }
                       </h2>
-                      <p className="text-white/80">
+                      <p className="break-words text-sm text-white/80 sm:text-base">
                         Dive deeper into this { heroEvent.category?.toLowerCase() || "curated" } moment. We have matched it with your vibe for a { vibeLabel.toLowerCase() } night out.
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/10 border border-white/10">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                      <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-white/10 bg-white/10 p-4">
                         <Gauge className="w-5 h-5 text-cyan-300" />
-                        <div>
+                        <div className="min-w-0">
                           <p className="text-xs uppercase tracking-widest text-white/70">Match Score</p>
-                          <p className="text-white text-lg font-semibold">{ curatedScore } / 100 • { vibeLabel }</p>
+                          <p className="break-words text-base font-semibold text-white sm:text-lg">{ curatedScore } / 100 • { vibeLabel }</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/10 border border-white/10">
+                      <div className="flex min-w-0 items-center gap-3 rounded-2xl border border-white/10 bg-white/10 p-4">
                         <Flame className="w-5 h-5 text-orange-300" />
-                        <div>
+                        <div className="min-w-0">
                           <p className="text-xs uppercase tracking-widest text-white/70">Energy</p>
-                          <p className="text-white text-lg font-semibold">{ heroEvent.location || "Vibrant venue" }</p>
+                          <p className="break-words text-base font-semibold text-white sm:text-lg">{ heroEvent.location || "Vibrant venue" }</p>
                         </div>
                       </div>
                     </div>
@@ -390,13 +390,13 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
                     <div className="flex flex-col sm:flex-row gap-3">
                       <button
                         onClick={ () => handleOpenEventDetails(heroEvent) }
-                        className="flex-1 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white font-semibold py-4 rounded-xl transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-2 shadow-lg"
+                        className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-600 py-4 font-semibold text-white shadow-lg transition-all duration-300 hover:scale-[1.02] hover:from-purple-500 hover:to-cyan-500"
                       >
                         Dive Into Details
                       </button>
                       <button
                         onClick={ () => handleEventClick(heroEvent.url) }
-                        className="px-6 py-4 rounded-xl border border-white/30 text-white/80 hover:text-white hover:border-white/60 transition-all duration-300"
+                        className="px-6 py-4 rounded-xl border border-white/30 text-white/80 transition-all duration-300 hover:border-white/60 hover:text-white"
                       >
                         Get Tickets
                       </button>
@@ -411,15 +411,15 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
               <motion.button
                 key={ event.id }
                 onClick={ () => handleOpenEventDetails(event) }
-                className="w-full group"
+                className="group w-full min-w-0"
                 initial={ { opacity: 0, y: 20 } }
                 animate={ { opacity: 1, y: 0 } }
                 transition={ { delay: index * 0.1 } }
                 whileHover={ { scale: 1.02 } }
                 whileTap={ { scale: 0.98 } }
               >
-                <div className="bg-white/95 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-white/20 transition-all duration-300 group-hover:shadow-2xl">
-                  <div className="relative w-full lg:max-w-[1170px] aspect-[1170/504] object-cover">
+                <div className="w-full overflow-hidden rounded-2xl border border-white/20 bg-white/95 shadow-xl transition-all duration-300 group-hover:shadow-2xl">
+                  <div className="relative aspect-[4/3] w-full sm:aspect-[16/9]">
                     <img
                       src={ event.image }
                       alt={ event.title }
@@ -437,28 +437,31 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
                     </div>
                   </div>
 
-                  <div className="p-4 sm:p-6 text-left">
-                    <h3 className="font-bold text-gray-900 text-lg sm:text-xl mb-2 group-hover:text-purple-700 transition-colors duration-200">
+                  <div className="p-4 text-left sm:p-6">
+                    <h3 className="mb-2 break-words text-lg font-bold text-gray-900 transition-colors duration-200 group-hover:text-purple-700 sm:text-xl">
                       { event.title }
                     </h3>
+                    { event.whyThis && (
+                      <p className="mb-3 break-words text-xs text-gray-500">{ event.whyThis }</p>
+                    ) }
 
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <MapPin className="w-4 h-4" />
+                      <div className="flex items-start gap-2 text-gray-600">
+                        <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
                         { event.location && (
-                          <span className="text-sm">{ event.location }</span>
+                          <span className="break-words text-sm">{ event.location }</span>
                         ) }
                       </div>
 
-                      <div className="flex items-center gap-2 text-cyan-600">
-                        <Calendar className="w-4 h-4" />
-                        <span className="text-sm font-medium">{ event.datetime }</span>
+                      <div className="flex items-start gap-2 text-cyan-600">
+                        <Calendar className="mt-0.5 h-4 w-4 shrink-0" />
+                        <span className="break-words text-sm font-medium">{ event.datetime }</span>
                       </div>
 
                       { event.price && (
-                        <div className="flex items-center gap-2 text-green-600">
-                          <DollarSign className="w-4 h-4" />
-                          <span className="text-sm font-semibold">{ event.price }</span>
+                        <div className="flex items-start gap-2 text-green-600">
+                          <DollarSign className="mt-0.5 h-4 w-4 shrink-0" />
+                          <span className="break-words text-sm font-semibold">{ event.price }</span>
                         </div>
                       ) }
                     </div>
@@ -489,14 +492,14 @@ const RecommendationsScreen: ComponentType<RecommendationsScreenProps> = ({
           </div>
 
           <motion.div
-            className="fixed bottom-6 left-0 right-0 z-20 flex justify-center px-6"
+            className="fixed bottom-4 left-0 right-0 z-20 flex justify-center px-4 sm:bottom-6 sm:px-6"
             initial={ { opacity: 0, y: 10 } }
             animate={ { opacity: 1, y: 0 } }
             transition={ { delay: Math.min(0.6, events.length * 0.05 + 0.2) } }
           >
             <button
               onClick={ onReturnHome }
-              className="bg-indigo-900/60 hover:bg-indigo-900/80 backdrop-blur-sm text-white font-semibold py-3 px-12 rounded-full border border-white/20 shadow-xl transition-all duration-300 hover:scale-105"
+              className="w-full max-w-sm rounded-full border border-white/20 bg-indigo-900/60 px-6 py-3 font-semibold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:bg-indigo-900/80 sm:w-auto sm:px-12"
             >
               Start Over
             </button>
