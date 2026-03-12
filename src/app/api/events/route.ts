@@ -12,6 +12,15 @@ const DATE_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
   day: "2-digit",
 };
 
+function toLocationSlug(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[’']/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-]/g, "");
+}
+
 function formatDate(date: Date) {
   const parts = new Intl.DateTimeFormat("en-CA", DATE_FORMAT_OPTIONS)
     .formatToParts(date)
@@ -125,7 +134,7 @@ export async function GET(request: NextRequest) {
   };
 
   if (location) {
-    params.location_slug = location.toLowerCase();
+    params.location_slug = toLocationSlug(location);
   }
 
   if (category) {

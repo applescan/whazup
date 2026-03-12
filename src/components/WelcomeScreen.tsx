@@ -8,6 +8,7 @@ import ErrorScreen from "./ErrorScreen";
 
 interface WelcomeScreenProps {
   onContinue: (locationSlug: string, dateFilter: EventDateFilter) => void;
+  onOpenChat: (locationSlug: string, dateFilter: EventDateFilter) => void;
 }
 
 interface GroupedLocation {
@@ -33,7 +34,7 @@ function mapToRegion(summary: string): Region {
   return Region.Other;
 }
 
-const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
+const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue, onOpenChat }) => {
   const { locations, loading, error, refetch } = useLocations();
   const [selectedLocation, setSelectedLocation] =
     useState<GroupedLocation | null>(null);
@@ -309,6 +310,14 @@ const WelcomeScreen: ComponentType<WelcomeScreenProps> = ({ onContinue }) => {
                 <span>Let's Explore</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
               </div>
+            </button>
+
+            <button
+              onClick={ () => selectedLocation && onOpenChat(selectedLocation.slug, dateFilter) }
+              disabled={ !selectedLocation }
+              className="w-full mt-4 bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-6 rounded-xl border border-white/20 transition-all duration-300 disabled:opacity-50 disabled:hover:bg-white/10 disabled:cursor-not-allowed"
+            >
+              Chat with the Event Assistant
             </button>
           </div>
         </div>
