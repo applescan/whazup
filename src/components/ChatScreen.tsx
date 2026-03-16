@@ -148,7 +148,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
   };
 
   return (
-    <div className="relative h-[100dvh] overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 lg:h-[150dvh]">
+    <div className="relative h-[100dvh] overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 -left-20 h-96 w-96 rounded-full bg-purple-500/10 blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/3 -right-20 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl animate-pulse delay-1000"></div>
