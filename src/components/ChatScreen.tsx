@@ -240,13 +240,9 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-white">
-                  { isExpanded ? "Chat in full screen" : "Start with a shortcut" }
-                </p>
+                <p className="text-sm font-semibold text-white">Chat</p>
                 <p className="mt-1 text-xs text-white/55">
-                  { isExpanded
-                    ? "Stay focused on the conversation and press Escape anytime to collapse."
-                    : "Great on mobile when you want a quick answer." }
+                  Ask a question, describe what you want, or continue the conversation.
                 </p>
               </div>
               <div className="flex items-center gap-2">
