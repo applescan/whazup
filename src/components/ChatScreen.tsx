@@ -6,7 +6,9 @@ import {
   ArrowUpRight,
   Bot,
   Calendar,
+  Maximize2,
   MapPin,
+  Minimize2,
   Send,
   Sparkles,
   User,
@@ -43,6 +45,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
   const [messages, setMessages] = useState<AgentMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const messagesRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -75,7 +78,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
     });
 
     return () => window.cancelAnimationFrame(frame);
-  }, [loading, messages]);
+  }, [isExpanded, loading, messages]);
 
   useEffect(() => {
     const composer = inputRef.current;
@@ -86,6 +89,25 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
     composer.style.height = `${nextHeight}px`;
     composer.style.overflowY = composer.scrollHeight > 144 ? "auto" : "hidden";
   }, [input]);
+
+  useEffect(() => {
+    if (!isExpanded) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsExpanded(false);
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isExpanded]);
 
   const addAssistantMessage = (
     content: string,
@@ -147,6 +169,10 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
     }
   };
 
+  const handleToggleExpanded = () => {
+    setIsExpanded((prev) => !prev);
+  };
+
   return (
     <div className="relative h-[100dvh] overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <div className="absolute inset-0 overflow-hidden">
@@ -158,56 +184,122 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
       <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
 
       <div className="relative z-10 mx-auto flex h-full max-w-5xl flex-col px-5 pb-[calc(env(safe-area-inset-bottom)+3rem)] pt-[calc(env(safe-area-inset-top)+1.25rem)] sm:px-10 sm:pt-10 sm:pb-16">
-        <div className="mb-3 rounded-[28px] border border-white/15 bg-white/10 p-3 shadow-2xl backdrop-blur-xl sm:mb-5 sm:p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex min-w-0 items-start gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/30 via-white/15 to-cyan-400/20">
-                <Sparkles className="h-5 w-5 text-cyan-100" />
+        { !isExpanded && (
+          <div className="mb-3 rounded-[28px] border border-white/15 bg-white/10 p-3 shadow-2xl backdrop-blur-xl sm:mb-5 sm:p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex min-w-0 items-start gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/30 via-white/15 to-cyan-400/20">
+                  <Sparkles className="h-5 w-5 text-cyan-100" />
+                </div>
+                <div className="min-w-0">
+                  <h1 className="text-base font-semibold text-white sm:text-lg">
+                    AI Event Assistant
+                  </h1>
+                  <p className="mt-1 text-xs leading-relaxed text-white/65 sm:text-sm">
+                    Ask for a mood, a budget, or a full night plan and get mobile-friendly recommendations fast.
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0">
-                <h1 className="text-base font-semibold text-white sm:text-lg">
-                  AI Event Assistant
-                </h1>
-                <p className="mt-1 text-xs leading-relaxed text-white/65 sm:text-sm">
-                  Ask for a mood, a budget, or a full night plan and get mobile-friendly recommendations fast.
-                </p>
+              <button
+                onClick={ onBack }
+                aria-label="Back"
+                className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/15 bg-black/15 px-3 py-2 text-sm font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
+                type="button"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">Back</span>
+              </button>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/10 bg-black/15 px-3 py-1.5 text-[11px] font-medium text-white/75 sm:text-xs">
+                <MapPin className="h-3.5 w-3.5 shrink-0 text-cyan-200" />
+                <span className="truncate capitalize">{ location || "New Zealand" }</span>
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/15 px-3 py-1.5 text-[11px] font-medium text-white/75 sm:text-xs">
+                <Calendar className="h-3.5 w-3.5 shrink-0 text-cyan-200" />
+                <span className="capitalize">{ dateFilterLabels[dateFilter] }</span>
               </div>
             </div>
-            <button
-              onClick={ onBack }
-              className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/15 bg-black/15 px-3 py-2 text-sm font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
-              type="button"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Back</span>
-            </button>
           </div>
+        ) }
 
-          <div className="mt-3 flex flex-wrap gap-2">
-            <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/10 bg-black/15 px-3 py-1.5 text-[11px] font-medium text-white/75 sm:text-xs">
-              <MapPin className="h-3.5 w-3.5 shrink-0 text-cyan-200" />
-              <span className="truncate capitalize">{ location || "New Zealand" }</span>
-            </div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/15 px-3 py-1.5 text-[11px] font-medium text-white/75 sm:text-xs">
-              <Calendar className="h-3.5 w-3.5 shrink-0 text-cyan-200" />
-              <span className="capitalize">{ dateFilterLabels[dateFilter] }</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[30px] border border-white/15 bg-white/10 shadow-2xl backdrop-blur-xl">
-          <div className="border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5">
-            <div className="flex items-center justify-between gap-3">
+        <div
+          className={
+            isExpanded
+              ? "fixed inset-0 z-30 flex min-h-0 flex-col overflow-hidden bg-slate-950/94 shadow-2xl backdrop-blur-2xl"
+              : "flex min-h-0 flex-1 flex-col overflow-hidden rounded-[30px] border border-white/15 bg-white/10 shadow-2xl backdrop-blur-xl"
+          }
+        >
+          <div
+            className={
+              isExpanded
+                ? "border-b border-white/10 px-4 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] sm:px-6 sm:pb-5"
+                : "border-b border-white/10 px-4 py-4 sm:px-6 sm:py-5"
+            }
+          >
+            <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-white">Start with a shortcut</p>
+                <p className="text-sm font-semibold text-white">
+                  { isExpanded ? "Chat in full screen" : "Start with a shortcut" }
+                </p>
                 <p className="mt-1 text-xs text-white/55">
-                  Great on mobile when you want a quick answer.
+                  { isExpanded
+                    ? "Stay focused on the conversation and press Escape anytime to collapse."
+                    : "Great on mobile when you want a quick answer." }
                 </p>
               </div>
-              <div className="hidden rounded-full border border-cyan-300/25 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100 sm:block">
-                Live Chat
+              <div className="flex items-center gap-2">
+                { isExpanded && (
+                  <button
+                    onClick={ onBack }
+                    aria-label="Back"
+                    className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/15 bg-black/15 px-3 py-2 text-sm font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
+                    type="button"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    <span className="hidden sm:inline">Back</span>
+                  </button>
+                ) }
+                <button
+                  onClick={ handleToggleExpanded }
+                  aria-label={ isExpanded ? "Exit full screen chat" : "Open full screen chat" }
+                  aria-pressed={ isExpanded }
+                  className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/15 bg-black/15 px-3 py-2 text-sm font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
+                  type="button"
+                >
+                  { isExpanded ? (
+                    <>
+                      <Minimize2 className="h-4 w-4" />
+                      <span className="hidden sm:inline">Exit full screen</span>
+                    </>
+                  ) : (
+                    <>
+                      <Maximize2 className="h-4 w-4" />
+                      <span className="hidden sm:inline">Full screen</span>
+                    </>
+                  ) }
+                </button>
+                { !isExpanded && (
+                  <div className="hidden rounded-full border border-cyan-300/25 bg-cyan-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100 sm:block">
+                    Live Chat
+                  </div>
+                ) }
               </div>
             </div>
+
+            { isExpanded && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/10 bg-black/15 px-3 py-1.5 text-[11px] font-medium text-white/75 sm:text-xs">
+                  <MapPin className="h-3.5 w-3.5 shrink-0 text-cyan-200" />
+                  <span className="truncate capitalize">{ location || "New Zealand" }</span>
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/15 px-3 py-1.5 text-[11px] font-medium text-white/75 sm:text-xs">
+                  <Calendar className="h-3.5 w-3.5 shrink-0 text-cyan-200" />
+                  <span className="capitalize">{ dateFilterLabels[dateFilter] }</span>
+                </div>
+              </div>
+            ) }
 
             <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
               { quickChips.map((chip) => (
@@ -355,7 +447,13 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
             ) }
           </div>
 
-          <div className="border-t border-white/10 bg-black/20 px-3 py-3 sm:px-6 sm:py-5">
+          <div
+            className={
+              isExpanded
+                ? "border-t border-white/10 bg-black/20 px-3 pb-[calc(env(safe-area-inset-bottom)+0.9rem)] pt-3 sm:px-6 sm:pt-5"
+                : "border-t border-white/10 bg-black/20 px-3 py-3 sm:px-6 sm:py-5"
+            }
+          >
             <div className="rounded-[26px] border border-white/15 bg-black/15 p-2 shadow-inner shadow-black/10">
               <div className="flex items-end gap-2 sm:gap-3">
                 <textarea
