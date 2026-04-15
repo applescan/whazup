@@ -9,8 +9,14 @@ export interface Event {
   fullDescription?: string;
   url?: string;
   price?: string;
+  priceValue?: number;
   isFree?: boolean;
   whyThis?: string;
+  startsAt?: string;
+  endsAt?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface UserPreferences {

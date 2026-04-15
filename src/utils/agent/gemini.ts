@@ -30,14 +30,19 @@ export async function getGeminiIntent({
     .join("; ");
 
   const systemInstruction = `You are an intent extraction assistant for an event discovery app in New Zealand.
-Return ONLY valid JSON with keys: location, dateFilter, budget, vibe, query, categoryNames.
+Return ONLY valid JSON with keys: location, dateFilter, budget, vibe, query, categoryNames, excludeTerms, indoorPreference, freeOnly, planMode.
 Rules:
 - location must be a location slug from the list when possible.
 - dateFilter must be one of: today, this_week, this_weekend, future.
 - budget is a number without currency symbol.
 - categoryNames must be a list of category names from the list when possible.
+- indoorPreference must be indoor, outdoor, or null.
+- freeOnly and planMode must be booleans or null.
+- excludeTerms must be a list of short terms the user wants to avoid.
 - If a field is not specified, return null.
-- Keep query short and specific.`;
+- Context values are background only. Do not copy context location or dateFilter into the JSON unless the current user message explicitly states them.
+- For follow-up wording like "actually", "also", "same but", or "make it", only return fields that are newly stated or changed.
+- Keep query short and specific. Do not include filler words like actually, related, also, events, outdoor, indoor, free, or this weekend.`;
 
   const userPrompt = `User message: "${message}"
 Context location: ${context?.location ?? "unknown"}
@@ -105,7 +110,13 @@ Known categories: ${categoryList}`;
       vibe: parsed.vibe || undefined,
       query: parsed.query || undefined,
       categoryNames: Array.isArray(parsed.categoryNames) ? parsed.categoryNames : undefined,
-
+      excludeTerms: Array.isArray(parsed.excludeTerms) ? parsed.excludeTerms : undefined,
+      indoorPreference:
+        parsed.indoorPreference === "indoor" || parsed.indoorPreference === "outdoor"
+          ? parsed.indoorPreference
+          : undefined,
+      freeOnly: typeof parsed.freeOnly === "boolean" ? parsed.freeOnly : undefined,
+      planMode: typeof parsed.planMode === "boolean" ? parsed.planMode : undefined,
     };
   } catch {
     return null;

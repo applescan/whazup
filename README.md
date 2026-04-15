@@ -91,6 +91,16 @@ A modern, Tinder-style event discovery application that helps users find persona
 - `/api/locations` - Fetch available locations
 - `/api/categories` - Get event categories
 - `/api/events` - Retrieve events with filtering
+- `npm run mcp:events` - Run the Whazup MCP server over stdio
+
+### **MCP Server**
+The repo now includes a standalone MCP server for the event agent. It exposes:
+- `recommend_events` - Natural-language event recommendations using the agent
+- `search_events` - Direct Eventfinda event search
+- `list_locations` - Available NZ locations
+- `list_categories` - Eventfinda categories
+
+It loads `.env.local` and `.env` automatically before starting, so the same Eventfinda credentials used by the app can be reused by MCP clients.
 
 ### **Key Features**
 - Comprehensive error handling and fallbacks

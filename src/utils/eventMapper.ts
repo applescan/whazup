@@ -3,6 +3,28 @@ import { Event, EventfindaEvent } from "@/types/Event";
 export function mapEventfindaEventToEvent(
   eventfindaEvent: EventfindaEvent
 ): Event {
+  const parsePriceValue = (event: EventfindaEvent): number | undefined => {
+    if (event.is_free) return 0;
+    if (event.ticket_types && event.ticket_types.length > 0) {
+      const prices = event.ticket_types
+        .map((ticket) => ticket.price)
+        .filter((price) => price > 0);
+      if (prices.length > 0) {
+        return Math.min(...prices);
+      }
+    }
+
+    const display = event.price_display || "";
+    const matches = Array.from(display.matchAll(/\d+(?:\.\d+)?/g)).map((match) =>
+      Number(match[0])
+    );
+    if (matches.length > 0) {
+      return Math.min(...matches);
+    }
+
+    return undefined;
+  };
+
   const formatDateTime = (dateString: string): string => {
     try {
       const date = new Date(dateString);
@@ -160,7 +182,13 @@ export function mapEventfindaEventToEvent(
       : "No detailed description available",
     url: eventfindaEvent.url,
     price: formatPrice(eventfindaEvent),
+    priceValue: parsePriceValue(eventfindaEvent),
     isFree: eventfindaEvent.is_free,
+    startsAt: eventfindaEvent.datetime_start,
+    endsAt: eventfindaEvent.datetime_end,
+    address: eventfindaEvent.address,
+    latitude: eventfindaEvent.point?.lat,
+    longitude: eventfindaEvent.point?.lng,
   };
 }
 

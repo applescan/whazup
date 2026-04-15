@@ -14,7 +14,9 @@ import {
   User,
 } from "lucide-react";
 import {
+  AgentMemory,
   AgentMessage,
+  AgentQuickAction,
   AgentRecommendation,
   AgentResponse,
 } from "@/types/Agent";
@@ -41,30 +43,92 @@ const dateFilterLabels: Record<EventDateFilter, string> = {
   this_weekend: "this weekend",
 };
 
+function buildWelcomeMessage(location: string, dateFilter: EventDateFilter): AgentMessage {
+  return {
+    id: "welcome",
+    role: "assistant",
+    content: `Tell me the vibe, budget, or who you are heading out with, and I will find ${dateFilterLabels[dateFilter]} picks in ${location || "New Zealand"}.`,
+  };
+}
+
+function generateSessionId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `session-${Math.random().toString(36).slice(2)}`;
+}
+
 const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack }) => {
   const [messages, setMessages] = useState<AgentMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [sessionId, setSessionId] = useState("");
+  const [agentMemory, setAgentMemory] = useState<AgentMemory | undefined>(undefined);
+  const [hasLoadedSession, setHasLoadedSession] = useState(false);
   const messagesRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const shouldPersistSessionRef = useRef(true);
 
-  const sessionId = useMemo(() => {
-    if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-      return crypto.randomUUID();
-    }
-    return `session-${Math.random().toString(36).slice(2)}`;
-  }, []);
+  const chatStorageKey = useMemo(
+    () => `whazup-chat:${location || "nz"}:${dateFilter}`,
+    [dateFilter, location]
+  );
 
   useEffect(() => {
-    setMessages([
-      {
-        id: "welcome",
-        role: "assistant",
-        content: `Tell me the vibe, budget, or who you are heading out with, and I will find ${dateFilterLabels[dateFilter]} picks in ${location || "New Zealand"}.`,
-      },
-    ]);
-  }, [dateFilter, location]);
+    if (typeof window === "undefined") return;
+
+    shouldPersistSessionRef.current = true;
+
+    try {
+      const stored = window.sessionStorage.getItem(chatStorageKey);
+      if (stored) {
+        const parsed = JSON.parse(stored) as {
+          sessionId?: string;
+          messages?: AgentMessage[];
+          memory?: AgentMemory;
+        };
+
+        setSessionId(parsed.sessionId || generateSessionId());
+        setMessages(
+          Array.isArray(parsed.messages) && parsed.messages.length > 0
+            ? parsed.messages
+            : [buildWelcomeMessage(location, dateFilter)]
+        );
+        setAgentMemory(parsed.memory);
+      } else {
+        setSessionId(generateSessionId());
+        setMessages([buildWelcomeMessage(location, dateFilter)]);
+        setAgentMemory(undefined);
+      }
+    } catch {
+      setSessionId(generateSessionId());
+      setMessages([buildWelcomeMessage(location, dateFilter)]);
+      setAgentMemory(undefined);
+    } finally {
+      setHasLoadedSession(true);
+    }
+  }, [chatStorageKey, dateFilter, location]);
+
+  useEffect(() => {
+    if (
+      !shouldPersistSessionRef.current ||
+      !hasLoadedSession ||
+      !sessionId ||
+      typeof window === "undefined"
+    ) {
+      return;
+    }
+
+    window.sessionStorage.setItem(
+      chatStorageKey,
+      JSON.stringify({
+        sessionId,
+        messages,
+        memory: agentMemory,
+      })
+    );
+  }, [agentMemory, chatStorageKey, hasLoadedSession, messages, sessionId]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -112,7 +176,8 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
   const addAssistantMessage = (
     content: string,
     recommendations?: AgentRecommendation[],
-    followUpQuestion?: string
+    followUpQuestion?: string,
+    quickActions?: AgentQuickAction[]
   ) => {
     setMessages((prev) => [
       ...prev,
@@ -122,13 +187,14 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
         content,
         recommendations,
         followUpQuestion,
+        quickActions,
       },
     ]);
   };
 
   const handleSend = async (text?: string) => {
     const message = (text ?? input).trim();
-    if (!message || loading) return;
+    if (!message || loading || !sessionId) return;
 
     setInput("");
     if (inputRef.current) {
@@ -149,6 +215,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
           sessionId,
           message,
           context: { location, dateFilter },
+          memory: agentMemory,
         }),
       });
 
@@ -157,10 +224,12 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
       }
 
       const data: AgentResponse = await response.json();
+      setAgentMemory(data.memory);
       addAssistantMessage(
         data.assistantMessage || "Here is what I found.",
         data.recommendations,
-        data.followUpQuestion
+        data.followUpQuestion,
+        data.quickActions
       );
     } catch {
       addAssistantMessage("I ran into a problem. Try again in a moment.");
@@ -171,6 +240,28 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
 
   const handleToggleExpanded = () => {
     setIsExpanded((prev) => !prev);
+  };
+
+  const handleBack = () => {
+    shouldPersistSessionRef.current = false;
+
+    if (typeof window !== "undefined") {
+      window.sessionStorage.removeItem(chatStorageKey);
+    }
+
+    if (sessionId) {
+      void fetch("/api/agent", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId }),
+        keepalive: true,
+      });
+    }
+
+    setMessages([buildWelcomeMessage(location, dateFilter)]);
+    setAgentMemory(undefined);
+    setSessionId(generateSessionId());
+    onBack();
   };
 
   return (
@@ -201,7 +292,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
                 </div>
               </div>
               <button
-                onClick={ onBack }
+                onClick={ handleBack }
                 aria-label="Back"
                 className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/15 bg-black/15 px-3 py-2 text-sm font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
                 type="button"
@@ -248,7 +339,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
               <div className="flex items-center gap-2">
                 { isExpanded && (
                   <button
-                    onClick={ onBack }
+                    onClick={ handleBack }
                     aria-label="Back"
                     className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/15 bg-black/15 px-3 py-2 text-sm font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
                     type="button"
@@ -303,7 +394,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
                   key={ chip }
                   onClick={ () => handleSend(chip) }
                   className="shrink-0 rounded-full border border-white/15 bg-black/15 px-4 py-2 text-xs font-semibold text-white/80 transition hover:border-purple-300/30 hover:bg-white/10 hover:text-white disabled:opacity-50"
-                  disabled={ loading }
+                  disabled={ loading || !sessionId }
                   type="button"
                 >
                   { chip }
@@ -351,12 +442,28 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
                     ) }
                   </div>
 
-                  <p className="text-sm leading-relaxed">{ msg.content }</p>
+                  <p className="whitespace-pre-line text-sm leading-relaxed">{ msg.content }</p>
 
                   { msg.followUpQuestion && (
                     <p className="mt-3 rounded-2xl bg-slate-100 px-3 py-2 text-xs text-slate-600">
                       { msg.followUpQuestion }
                     </p>
+                  ) }
+
+                  { msg.quickActions && msg.quickActions.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      { msg.quickActions.map((action) => (
+                        <button
+                          key={ `${msg.id}-${action.prompt}` }
+                          onClick={ () => handleSend(action.prompt) }
+                          className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[11px] font-semibold text-slate-700 transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-800"
+                          disabled={ loading || !sessionId }
+                          type="button"
+                        >
+                          { action.label }
+                        </button>
+                      )) }
+                    </div>
                   ) }
 
                   { msg.recommendations && msg.recommendations.length > 0 && (
@@ -388,14 +495,34 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
                                     { rec.location }
                                   </p>
                                 </div>
-                                <span className="shrink-0 rounded-full bg-cyan-50 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-cyan-700">
-                                  Match
-                                </span>
+                                <div className="flex shrink-0 flex-col items-end gap-1">
+                                  <span className="rounded-full bg-cyan-50 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-cyan-700">
+                                    { rec.planOrder ? `Stop ${rec.planOrder}` : "Match" }
+                                  </span>
+                                  { rec.price && (
+                                    <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                                      { rec.price }
+                                    </span>
+                                  ) }
+                                </div>
                               </div>
 
                               <p className="mt-2 text-[11px] font-medium text-cyan-700">
                                 { rec.datetime }
                               </p>
+
+                              <div className="mt-2 flex flex-wrap gap-1.5">
+                                { rec.category && (
+                                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">
+                                    { rec.category }
+                                  </span>
+                                ) }
+                                { typeof rec.distanceFromPreviousKm === "number" && (
+                                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">
+                                    { rec.distanceFromPreviousKm.toFixed(1) } km from last stop
+                                  </span>
+                                ) }
+                              </div>
 
                               { rec.whyThis && (
                                 <p className="mt-2 line-clamp-2 text-[10px] leading-relaxed text-slate-600">
@@ -468,7 +595,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ location, dateFilter, onBack })
                 />
                 <button
                   onClick={ () => handleSend() }
-                  disabled={ loading || !input.trim() }
+                  disabled={ loading || !input.trim() || !sessionId }
                   className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 to-cyan-600 px-4 text-sm font-semibold text-white shadow-lg shadow-purple-950/30 transition hover:from-purple-500 hover:to-cyan-500 disabled:cursor-not-allowed disabled:opacity-50"
                   type="button"
                 >
