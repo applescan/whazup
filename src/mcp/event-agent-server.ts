@@ -121,17 +121,17 @@ function createServer() {
       const locationHints = await getLocationHints();
       const categoryHints = await getCategoryHints();
       const geminiApiKey = process.env.GEMINI_API_KEY;
-      const geminiModel = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
+      const geminiModel = process.env.GEMINI_MODEL || "gemini-3.1-flash";
 
       const aiIntent = geminiApiKey
         ? await getGeminiIntent({
-            apiKey: geminiApiKey,
-            model: geminiModel,
-            message,
-            context: { location, dateFilter },
-            locationHints,
-            categoryHints,
-          })
+          apiKey: geminiApiKey,
+          model: geminiModel,
+          message,
+          context: { location, dateFilter },
+          locationHints,
+          categoryHints,
+        })
         : null;
 
       const response = await runAgent(

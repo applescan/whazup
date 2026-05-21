@@ -1246,61 +1246,6 @@ function formatPlanTime(dateValue?: string): string {
   });
 }
 
-function buildWhyThis(
-  recommendation: AgentRecommendation,
-  intent: AgentIntent,
-  options?: { fallbackApplied?: boolean }
-): string {
-  const reasons: string[] = [];
-  const haystack = buildHaystack(recommendation);
-
-  if (intent.query && sharesQuerySignal(recommendation, intent.query)) {
-    reasons.push("it lines up with what you asked for");
-  }
-
-  if (
-    intent.categoryNames?.length &&
-    normalizeText(recommendation.category || "").includes(
-      normalizeText(intent.categoryNames[0])
-    )
-  ) {
-    reasons.push(`it stays close to ${intent.categoryNames[0].toLowerCase()}`);
-  }
-
-  if (intent.vibe && haystack.includes(normalizeText(intent.vibe))) {
-    reasons.push(`it keeps the ${intent.vibe} vibe`);
-  }
-
-  const price = parsePrice(recommendation);
-  if (intent.freeOnly && recommendation.isFree) {
-    reasons.push("it stays free");
-  } else if (
-    typeof intent.budget === "number" &&
-    typeof price === "number" &&
-    price <= intent.budget
-  ) {
-    reasons.push(`it stays under about $${intent.budget}`);
-  }
-
-  if (intent.indoorPreference === "indoor" && !looksOutdoor(recommendation)) {
-    reasons.push("it leans indoor");
-  }
-
-  if (intent.indoorPreference === "outdoor" && looksOutdoor(recommendation)) {
-    reasons.push("it keeps the outdoor feel");
-  }
-
-  if (options?.fallbackApplied) {
-    reasons.push("it came from a broader backup search");
-  }
-
-  if (reasons.length === 0) {
-    return "Picked because it fits the timing and location you gave me.";
-  }
-
-  return `Picked because ${reasons.slice(0, 3).join(" and ")}.`;
-}
-
 function buildNightPlan(
   recommendations: AgentRecommendation[],
   intent: AgentIntent,
@@ -1362,15 +1307,6 @@ function buildNightPlan(
       ...rec,
       planOrder: index + 1,
       distanceFromPreviousKm: distanceKm,
-      whyThis: [
-        `Works as stop ${index + 1} in the night.`,
-        previous && typeof distanceKm === "number"
-          ? `Travel from the previous stop is about ${distanceKm.toFixed(1)} km.`
-          : null,
-        buildWhyThis(rec, intent),
-      ]
-        .filter(Boolean)
-        .join(" "),
     };
   });
 
@@ -1624,12 +1560,7 @@ export async function runAgent(
     recommendations = plan.recommendations;
     assistantMessage = plan.summary;
   } else {
-    recommendations = recommendations.slice(0, 5).map((rec) => ({
-      ...rec,
-      whyThis: buildWhyThis(rec, intent, {
-        fallbackApplied: searchResult.fallbackApplied,
-      }),
-    }));
+    recommendations = recommendations.slice(0, 5);
   }
 
   const followUpQuestion = buildFollowUpQuestion(intent, recommendations);
